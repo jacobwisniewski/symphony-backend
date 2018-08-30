@@ -24,9 +24,9 @@ Once you've done this once, your connection will be in your recents. So next tim
 - Data: {'access_code': access code}
 - Returns: \
 {\
+&nbsp;'mongo_id': mongo_id,\
 &nbsp;'user_id': user_id,\
 &nbsp;'user_name': user_name,\
 &nbsp;'profile_picture: profile_picture,\
 &nbsp;'user_gigs': \[{'gig_name': gig_name, 'host_name': host_name, 'location': location}, {...}],\
-&nbsp;'object_id': object_id\
 }
