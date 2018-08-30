@@ -16,3 +16,17 @@ Once you have MongoDB compass installed follow these steps
 7. Fill in the "Username" and "Password" inputs with your details
 8. Connect!
 Once you've done this once, your connection will be in your recents. So next time you need to use this, just use your rcent connections.
+
+## Requests Structure
+### /api/login
+**POST**
+- Header: {'Content-Type': 'application/json'}
+- Data: {'access_code': access code}
+- Returns: \
+{\
+&nbsp;'user_id': user_id,\
+&nbsp;'user_name': user_name,\
+&nbsp;'profile_picture: profile_picture,\
+&nbsp;'user_gigs': \[{'gig_name': gig_name, 'host_name': host_name, 'location': location}, {...}],\
+&nbsp;'object_id': object_id\
+}
