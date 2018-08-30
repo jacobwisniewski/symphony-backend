@@ -13,7 +13,7 @@ CORS(app)
 api = Api(app)
 
 # Register API Endpoints
-api.add_resource(backend.Hello, '/api')
+api.add_resource(backend.Login, '/api/login')
 
 
 if __name__ == '__main__':
