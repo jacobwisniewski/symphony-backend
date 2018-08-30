@@ -1,1 +1,1 @@
-# symphony-backend
+# Symphony Flask Backend
