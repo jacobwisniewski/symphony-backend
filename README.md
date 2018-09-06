@@ -1,5 +1,21 @@
 # Symphony Flask Backend
 
+## How to start development version of Flask API
+Start by cd-ing to symphony-backend directory
+- Windows Systems:
+    ```
+    set FLASK_APP=app
+    set FLASK_ENV=development
+    set DATABASE_URL=%DATABASE_URL%
+    flask run
+    ```
+- Unix Systems:
+    ```
+    export FLASK_APP=app
+    export FLASK_ENV=development
+    export DATABASE_URL=%DATABASE_URL%
+    flask run
+    ```
 
 ## How to use MongoDB compass (GUI style tool for MongoDB clusters)
 Do these steps if you have never used MongoDB compass
