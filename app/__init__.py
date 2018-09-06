@@ -1,7 +1,9 @@
+import os
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
-from app import backend
+from pymongo import MongoClient
+from app import login
 
 # Initialise the app
 app = Flask(__name__)
@@ -13,8 +15,10 @@ CORS(app)
 api = Api(app)
 
 # Register API Endpoints
-api.add_resource(backend.Login, '/api/login')
+api.add_resource(login.Login, '/api/login')
 
+# Connect to MongoDB Atlas
+mongo_client = MongoClient(os.environ['DATABASE_URL'])
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# Connect to database
+db = mongo_client.db
