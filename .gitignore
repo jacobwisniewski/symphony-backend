@@ -3,3 +3,6 @@
 
 # Virtual environment
 /venv
+
+# Ignore config files
+*.cfg
