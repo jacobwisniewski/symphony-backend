@@ -16,6 +16,13 @@ Start by cd-ing to symphony-backend directory
     export DATABASE_URL=%DATABASE_URL%
     flask run
     ```
+### Required Environment Variables
+- FLASK_APP: Set to app
+- FLASK_ENV: development when testing
+- DATABASE_URL: MongoDB URL
+- CLIENT_ID: Spotify Client ID
+- CLIENT_SECRET: Spotify Client Secret
+- REDIRECT_URI: Spotify Redirect URI
 
 ## How to use MongoDB compass (GUI style tool for MongoDB clusters)
 Do these steps if you have never used MongoDB compass
