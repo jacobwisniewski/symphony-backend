@@ -14,8 +14,8 @@ class Login(Resource):
         tokens = spotify.get_tokens(access_code)
 
         # Get user details
-        tokens, profile = spotify.get_user_profile(tokens)
-        tokens, top_songs = spotify.get_top_songs(tokens)
+        profile = spotify.get_user_profile(tokens)
+        top_songs = spotify.get_top_songs(tokens)
 
         # Check if user exists in database
         users = Collection('users')
