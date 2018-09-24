@@ -15,7 +15,7 @@ def get_tokens(access_code):
         data={
             'grant_type': 'authorization_code',
             'code': access_code,
-            'redirect_uri': 'localhost:8080/callback',
+            'redirect_uri': os.environ['REDIRECT_URI'],
             'client_id': os.environ['CLIENT_ID'],
             'client_secret': os.environ['CLIENT_SECRET']
         }
@@ -50,7 +50,7 @@ def get_user_profile(tokens):
     profile = {
         'spotify_id': response['id'],
         'user_name': response['display_name'],
-        'profile_picture': response['images']['url']
+        'profile_picture': response['images'][0]['url']
     }
 
     return profile
