@@ -15,7 +15,7 @@ def get_tokens(access_code):
         data={
             'grant_type': 'authorization_code',
             'code': access_code,
-            'redirect_uri': 'localhost:5000/callback',
+            'redirect_uri': 'localhost:8080/callback',
             'client_id': os.environ['CLIENT_ID'],
             'client_secret': os.environ['CLIENT_SECRET']
         }
