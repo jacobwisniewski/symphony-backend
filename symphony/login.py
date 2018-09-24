@@ -61,7 +61,7 @@ class Login(Resource):
 
         # API JSON response
         response = {
-            'mongo_id': mongo_id,
+            'mongo_id': str(mongo_id),
             'spotify_id': profile['spotify_id'],
             'user_name': profile['user_name'],
             'profile_picture': profile['profile_picture'],
