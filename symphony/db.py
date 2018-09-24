@@ -27,7 +27,7 @@ class Collection:
             {'$set': document},
             return_document=ReturnDocument.AFTER
         )
-        return document
+        return document['_id']
 
     def find(self, key, value):
         """Find a document with a specific key and value"""
