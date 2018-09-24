@@ -3,6 +3,10 @@ import requests
 import time
 
 
+class LoginError(BaseException):
+    pass
+
+
 def get_tokens(access_code):
     """Gets the access token, refresh token and expiry date in POSIX time"""
     # Make POST request to Spotify API
@@ -15,13 +19,18 @@ def get_tokens(access_code):
             'client_id': os.environ['CLIENT_ID'],
             'client_secret': os.environ['CLIENT_SECRET']
         }
-    ).json()
+    )
+
+    if response.status_code != 200:
+        raise LoginError('Invalid access code')
+
+    json = response.json()
 
     # Structure output
     tokens = {
-        'access_token': response['access_token'],
-        'refresh_token': response['refresh_token'],
-        'expiry': time.time() + response['expires_in'],
+        'access_token': json['access_token'],
+        'refresh_token': json['refresh_token'],
+        'expiry': time.time() + json['expires_in'],
     }
 
     return tokens

@@ -1,6 +1,8 @@
+from flask import make_response, jsonify
 from flask_restful import Resource, reqparse
 from app.db import Collection
 from app import spotify
+from app.spotify import LoginError
 
 
 class Login(Resource):
@@ -11,7 +13,13 @@ class Login(Resource):
                             help='Access Code is Required')
         args = parser.parse_args()
         access_code = args['access_code']
-        tokens = spotify.get_tokens(access_code)
+
+        try:
+            tokens = spotify.get_tokens(access_code)
+        except LoginError:
+            return make_response(
+                jsonify({'message': 'Invalid credentials'}), 401
+            )
 
         # Get user details
         profile = spotify.get_user_profile(tokens)
