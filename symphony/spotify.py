@@ -47,10 +47,15 @@ def get_user_profile(tokens):
     if 'display_name' not in response:
         response['display_name'] = response['id']
 
+    if response['images']:
+        profile_picture = response['images'][0]['url']
+    else:
+        profile_picture = ''
+
     profile = {
         'spotify_id': response['id'],
         'user_name': response['display_name'],
-        'profile_picture': response['images'][0]['url']
+        'profile_picture': profile_picture
     }
 
     return profile
