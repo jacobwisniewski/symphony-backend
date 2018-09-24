@@ -1,8 +1,8 @@
 from flask import make_response, jsonify
 from flask_restful import Resource, reqparse
-from app.db import Collection
-from app import spotify
-from app.spotify import LoginError
+from symphony.db import Collection
+from symphony import spotify
+from symphony.spotify import LoginError
 
 
 class Login(Resource):

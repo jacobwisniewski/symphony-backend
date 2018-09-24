@@ -1,13 +1,15 @@
 """
 Class collection simplifies pymongo.collection to its main functions
 """
-from app import db
+import os
 from pymongo import ReturnDocument
-
+from pymongo import MongoClient
 
 class Collection:
     def __init__(self, collection):
-        self.collection = db[collection]
+        mongo_client = MongoClient(os.environ['DATABASE_URL'])
+        mongo = mongo_client.db
+        self.collection = mongo[collection]
 
     def __getitem__(self, _id):
         """Gets a document using _id"""

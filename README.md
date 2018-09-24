@@ -17,7 +17,7 @@ Start by cd-ing to symphony-backend directory
     flask run
     ```
 ### Required Environment Variables
-- FLASK_APP: Set to app
+- FLASK_APP: Set to symphony
 - FLASK_ENV: development when testing
 - DATABASE_URL: MongoDB URL
 - CLIENT_ID: Spotify Client ID

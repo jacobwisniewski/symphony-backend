@@ -14,6 +14,7 @@ class Callback(Resource):
 
         :returns: Callback URL with required scopes
         """
+        state = random_string(16)
         base_url = 'https://accounts.spotify.com/authorize/?'
         query_params = {
             'client_id': os.environ['CLIENT_ID'],
@@ -21,8 +22,8 @@ class Callback(Resource):
             'redirect_uri': os.environ['REDIRECT_URI'],
             'scope': 'user-top-read user-read-private',
             'show_dialog': False,
-            'state': random_string(16)
+            'state': state
         }
         encoded_params = urlencode(query_params)
         encoded_url = base_url + encoded_params
-        return {'url': encoded_url}
+        return {'url': encoded_url, 'state': state}
