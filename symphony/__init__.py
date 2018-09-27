@@ -3,6 +3,7 @@ from flask_restful import Api
 from flask_cors import CORS
 from symphony import login, auth_uri
 
+
 def create_app():
     # Initialise the symphony
     app = Flask(__name__)

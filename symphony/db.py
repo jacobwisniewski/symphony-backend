@@ -5,6 +5,7 @@ import os
 from pymongo import ReturnDocument
 from pymongo import MongoClient
 
+
 class Collection:
     def __init__(self, collection):
         mongo_client = MongoClient(os.environ['DATABASE_URL'])

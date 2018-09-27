@@ -4,9 +4,11 @@ from urllib.parse import urlencode
 import random
 import string
 
+
 def random_string(length):
     characters = string.ascii_lowercase + string.ascii_uppercase + string.digits
     return ''.join(random.choice(characters) for char in range(length))
+
 
 class Callback(Resource):
     def get(self):
