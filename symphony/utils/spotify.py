@@ -21,7 +21,7 @@ def get_tokens(access_code, page):
         }
     )
 
-    if response.status_code != 200:
+    if not response.ok:
         raise LoginError('Invalid access code')
 
     json = response.json()

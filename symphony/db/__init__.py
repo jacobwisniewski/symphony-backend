@@ -13,7 +13,7 @@ class Collection:
         self.collection = mongo[collection]
 
     def __getitem__(self, _id):
-        """Gets a document using _id"""
+        """Gets a document using a MongoDB ID"""
         return self.collection.find_one({'_id': _id})
 
     def insert(self, document):
