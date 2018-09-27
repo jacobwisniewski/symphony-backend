@@ -2,21 +2,20 @@ from flask import make_response, jsonify
 from flask_restful import Resource, reqparse
 from symphony.db import Collection
 from symphony import spotify
-from symphony.spotify import LoginError
 
 
-class Login(Resource):
+class Profile(Resource):
     def post(self):
         # Parse arguments
         parser = reqparse.RequestParser(bundle_errors=True)
         parser.add_argument('access_code', required=True, type=str,
-                            help='Access Code is Required')
+                            help='Access code is required')
         args = parser.parse_args()
         access_code = args['access_code']
 
         try:
-            tokens = spotify.get_tokens(access_code)
-        except LoginError:
+            tokens = spotify.get_tokens(access_code, 'profile')
+        except spotify.LoginError:
             return make_response(
                 jsonify({'message': 'Invalid credentials'}), 401
             )

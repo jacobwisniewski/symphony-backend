@@ -11,17 +11,18 @@ def random_string(length):
 
 
 class Callback(Resource):
-    def get(self):
+    def get(self, page):
         """Gets the URL to push to users for callback authentication
 
-        :returns: Callback URL with required scopes
+        :returns: Callback URL with required scopes and randomised state
         """
+        redirect_uri = os.environ['FRONTEND_URL'] + f'/{page}/callback'
         state = random_string(16)
         base_url = 'https://accounts.spotify.com/authorize/?'
         query_params = {
             'client_id': os.environ['CLIENT_ID'],
             'response_type': 'code',
-            'redirect_uri': os.environ['REDIRECT_URI'],
+            'redirect_uri': redirect_uri,
             'scope': 'user-top-read user-read-private',
             'show_dialog': False,
             'state': state

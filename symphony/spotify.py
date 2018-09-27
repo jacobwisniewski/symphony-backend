@@ -7,7 +7,7 @@ class LoginError(BaseException):
     pass
 
 
-def get_tokens(access_code):
+def get_tokens(access_code, page):
     """Gets the access token, refresh token and expiry date in POSIX time"""
     # Make POST request to Spotify API
     response = requests.post(
@@ -15,7 +15,7 @@ def get_tokens(access_code):
         data={
             'grant_type': 'authorization_code',
             'code': access_code,
-            'redirect_uri': os.environ['REDIRECT_URI'],
+            'redirect_uri': os.environ['FRONTEND_URL'] + f'/{page}/callback',
             'client_id': os.environ['CLIENT_ID'],
             'client_secret': os.environ['CLIENT_SECRET']
         }
@@ -50,7 +50,8 @@ def get_user_profile(tokens):
     if response['images']:
         profile_picture = response['images'][0]['url']
     else:
-        profile_picture = ''
+        # Blank profile picture for users without one
+        profile_picture = 'https://imgur.com/a/crZnMzs'
 
     profile = {
         'spotify_id': response['id'],

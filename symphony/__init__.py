@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
-from symphony import login, auth_uri
+from symphony.endpoints import callback, profile
 
 
 def create_app():
@@ -15,7 +15,7 @@ def create_app():
     api = Api(app)
 
     # Register API Endpoints
-    api.add_resource(login.Login, '/api/login')
-    api.add_resource(auth_uri.Callback, '/api/callback')
+    api.add_resource(profile.Profile, '/api/profile')
+    api.add_resource(callback.Callback, '/api/<string:page>/callback')
 
     return app
