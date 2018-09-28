@@ -44,7 +44,7 @@ def get_user_profile(tokens):
     ).json()
 
     # Fill in missing data
-    if 'display_name' not in response:
+    if response['display_name'] is None:
         response['display_name'] = response['id']
 
     if response['images']:
