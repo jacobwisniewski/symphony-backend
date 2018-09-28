@@ -1,6 +1,30 @@
 import os
 import requests
 import time
+from symphony.db import Collection
+from functools import wraps
+
+
+def update_admin_token(func):
+    @wraps(func)
+    def token_updated(*args, **kwargs):
+        col = Collection('admin')
+        admin = col.find('user', 'admin')
+        if admin:
+            expiry = admin['tokens']['expiry']
+            now = time.time()
+            # Use refresh token if access token is expired
+            if expiry < now:
+                tokens = update_tokens(admin['tokens']['refresh_token'])
+                col.update(admin['_id'], {'tokens': tokens})
+        else:
+            # Source the admin access code from env var
+            # Redirect URI should be /create/callback
+            access_code = os.environ['ACCESS_CODE']
+            tokens = get_tokens(access_code, 'create')
+            col.insert({'user': 'admin', 'tokens': tokens})
+        return func(*args, **kwargs)
+    return token_updated
 
 
 class LoginError(BaseException):
@@ -22,6 +46,7 @@ def get_tokens(access_code, page):
     )
 
     if not response.ok:
+        print(response.json())
         raise LoginError('Invalid access code')
 
     json = response.json()
@@ -73,3 +98,38 @@ def get_top_songs(tokens):
     tracks = [track['id'] for track in response['items']]
 
     return tracks
+
+
+def update_tokens(refresh_token):
+    response = requests.post(
+        'https://accounts.spotify.com/api/token',
+        data={
+            'grant_type': 'refresh_token',
+            'refresh_token': refresh_token,
+            'client_id': os.environ['CLIENT_ID'],
+            'client_secret': os.environ['CLIENT_SECRET']
+        })
+    data = response.json()
+    tokens = {
+        'access_token': data['access_token'],
+        'refresh_token': data['refresh_token'],
+        'expiry': time.time() + data['expires_in'],
+    }
+    return tokens
+
+
+@update_admin_token
+def create_playlist(playlist_name):
+    col = Collection('admin')
+    admin = col.find('user', 'admin')
+    profile = get_user_profile(admin['tokens'])
+    admin_id = profile['spotify_id']
+    access_token = admin['tokens']['access_token']
+
+    response = requests.post(
+        f'https://api.spotify.com/v1/users/{admin_id}/playlists',
+        headers={'Authorization': f'Bearer {access_token}'},
+        json={'name': playlist_name,
+              'description': f'Symphony Playlist for {playlist_name}'})
+    data = response.json()
+    return data['id'], data['href']

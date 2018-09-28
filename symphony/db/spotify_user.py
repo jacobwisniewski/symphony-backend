@@ -40,7 +40,7 @@ def _create_user(profile, tokens, top_songs, users):
         'stats': {
             'recommendation_history': [],
             'gig_history': [],
-            'past_gig_urls': []
+            'past_playlist_urls': []
         }
     })
     return mongo_id

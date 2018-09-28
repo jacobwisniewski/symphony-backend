@@ -4,7 +4,6 @@ from symphony.db import Collection, spotify_user
 from symphony.utils import spotify
 from symphony.utils import random_string
 
-
 # Parser for /api/create
 parser = reqparse.RequestParser(bundle_errors=True)
 parser.add_argument('access_code', type=str, default=None)
@@ -34,6 +33,24 @@ def get_user(args):
     return users[mongo_id]
 
 
+def update_user(args, playlist_url, user):
+    # Format data to update for user
+    user_gigs = user['user_gigs']
+    user_gigs.append(args['gig_name'])
+    user_stats = user['stats']
+    user_stats['gig_history'].append(args['gig_name'])
+    user_stats['past_playlist_urls'].append(playlist_url)
+
+    # Update user data
+    users = Collection('users')
+    users.update(
+        user['_id'],
+        {
+            'user_gigs': user_gigs,
+            'stats': user_stats
+        })
+
+
 class Create(Resource):
     def post(self):
         args = parser.parse_args()
@@ -59,18 +76,31 @@ class Create(Resource):
             invite_code = random_string(6)
             code = gigs.find('invite_code', invite_code)
 
-        gigs.insert({
-            'owner_mongo_id': user['_id'],
-            'owner_spotify_id': user['spotify_id'],
-            'owner_user_name': user['user_name'],
+        playlist_id, playlist_url = spotify.create_playlist(args['gig_name'])
+
+        # TODO: Implement track choosing algorithms and save to playlist
+        # tracks = spotify.generate_tracks(args['algorithm'])
+        # populate_playlist(playlist_id, tracks)
+
+        gig_id = gigs.insert({
+            'owner_mongo_id': str(user['_id']),
+            'owner_name': user['user_name'],
             'gig_name': args['gig_name'],
+            'playlist_url': playlist_url,
+            'playlist_id': playlist_id,
+            'users': [str(user['_id'])],
             'private': args['private'],
             'latitude': args['latitude'],
             'longitude': args['longitude'],
             'algorithm': args['algorithm'],
-            'invite_ode': invite_code
+            'invite_code': invite_code
         })
 
-        response = {'invite_code': invite_code}
+        update_user(args, playlist_url, user)
+
+        response = {'invite_code': invite_code,
+                    'playlist_id': playlist_id,
+                    'playlist_url': playlist_url,
+                    'gig_id': gig_id}
 
         return response
