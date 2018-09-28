@@ -6,14 +6,20 @@ Start by cd-ing to symphony-backend directory
     ```
     set FLASK_APP=app
     set FLASK_ENV=development
-    set DATABASE_URL=%DATABASE_URL%
+    set DATABASE_URL=
+    set CLIENT_ID=
+    set CLIENT_SECRET=
+    set FRONTEND_URL=
     flask run
     ```
 - Unix Systems:
     ```
     export FLASK_APP=app
     export FLASK_ENV=development
-    export DATABASE_URL=%DATABASE_URL%
+    export DATABASE_URL=
+    export CLIENT_ID=
+    export CLIENT_SECRET=
+    export FRONTEND_URL=
     flask run
     ```
 ### Required Environment Variables
@@ -22,7 +28,8 @@ Start by cd-ing to symphony-backend directory
 - DATABASE_URL: MongoDB URL
 - CLIENT_ID: Spotify Client ID
 - CLIENT_SECRET: Spotify Client Secret
-- REDIRECT_URI: Spotify Redirect URI
+- FRONTEND_URL: The frontend URL, used for callbacks
+  - '/profile/callback', '/create/callback' and '/join/callback' should be registered as callback URIs for Spotify
 
 ## How to use MongoDB compass (GUI style tool for MongoDB clusters)
 Do these steps if you have never used MongoDB compass
@@ -39,17 +46,3 @@ Once you have MongoDB compass installed follow these steps
 7. Fill in the "Username" and "Password" inputs with your details
 8. Connect!
 Once you've done this once, your connection will be in your recents. So next time you need to use this, just use your rcent connections.
-
-## Requests Structure
-### /api/login
-**POST**
-- Header: {'Content-Type': 'application/json'}
-- Data: {'access_code': access code}
-- Returns: \
-{\
-&nbsp;'mongo_id': mongo_id,\
-&nbsp;'user_id': user_id,\
-&nbsp;'user_name': user_name,\
-&nbsp;'profile_picture: profile_picture,\
-&nbsp;'user_gigs': \[{'gig_name': gig_name, 'host_name': host_name, 'location': location}, {...}],\
-}
