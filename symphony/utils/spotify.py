@@ -5,28 +5,6 @@ from symphony.db import Collection
 from functools import wraps
 
 
-def update_admin_token(func):
-    @wraps(func)
-    def token_updated(*args, **kwargs):
-        col = Collection('admin')
-        admin = col.find('user', 'admin')
-        if admin:
-            expiry = admin['tokens']['expiry']
-            now = time.time()
-            # Use refresh token if access token is expired
-            if expiry < now:
-                tokens = update_tokens(admin['tokens']['refresh_token'])
-                col.update(admin['_id'], {'tokens': tokens})
-        else:
-            # Source the admin access code from env var
-            # Redirect URI should be /create/callback
-            access_code = os.environ['ACCESS_CODE']
-            tokens = get_tokens(access_code, 'create')
-            col.insert({'user': 'admin', 'tokens': tokens})
-        return func(*args, **kwargs)
-    return token_updated
-
-
 class LoginError(BaseException):
     pass
 
@@ -100,6 +78,31 @@ def get_top_songs(tokens):
     return tracks
 
 
+def get_admin(func):
+    @wraps(func)
+    def token_updated(*args, **kwargs):
+        col = Collection('admin')
+        admin = col.find('user', 'admin')
+        if admin:
+            admin_id = admin['_id']
+            expiry = admin['tokens']['expiry']
+            now = time.time()
+            # Use refresh token if access token is expired
+            if now > expiry + 10:
+                tokens = update_tokens(admin['tokens']['refresh_token'])
+                col.update(admin['_id'], {'tokens': tokens})
+        else:
+            # Source the admin access code from env var
+            # Redirect URI should be /create/callback
+            access_code = os.environ['ACCESS_CODE']
+            tokens = get_tokens(access_code, 'create')
+            admin_id = col.insert({'user': 'admin', 'tokens': tokens})
+
+        admin = col[admin_id]
+        return func(admin, *args, **kwargs)
+    return token_updated
+
+
 def update_tokens(refresh_token):
     response = requests.post(
         'https://accounts.spotify.com/api/token',
@@ -118,16 +121,19 @@ def update_tokens(refresh_token):
     return tokens
 
 
-@update_admin_token
-def create_playlist(playlist_name):
-    col = Collection('admin')
-    admin = col.find('user', 'admin')
+@get_admin
+def create_playlist(admin, playlist_name):
+    """Creates playlist on Symphony App Spotify account
+
+    Use by calling :func:create_playlist(playlist_name), :param:admin is
+    filled by the decorator
+    """
     profile = get_user_profile(admin['tokens'])
-    admin_id = profile['spotify_id']
+    admin_spotify_id = profile['spotify_id']
     access_token = admin['tokens']['access_token']
 
     response = requests.post(
-        f'https://api.spotify.com/v1/users/{admin_id}/playlists',
+        f'https://api.spotify.com/v1/users/{admin_spotify_id}/playlists',
         headers={'Authorization': f'Bearer {access_token}'},
         json={'name': playlist_name,
               'description': f'Symphony Playlist for {playlist_name}'})
