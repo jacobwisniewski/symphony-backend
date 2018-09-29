@@ -22,7 +22,7 @@ class Collection:
         return str(_id)
 
     def update(self, _id, document):
-        """Updates a document and returns updated document"""
+        """Updates a document and returns updated document _id"""
         document = self.collection.find_one_and_update(
             {'_id': _id},
             {'$set': document},

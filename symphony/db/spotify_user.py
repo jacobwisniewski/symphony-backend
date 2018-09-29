@@ -2,7 +2,19 @@ from symphony.db import Collection
 
 
 def create_update(tokens, profile, top_songs):
-    """Adds user to the database or updates user details"""
+    """Adds user to the database or updates user details
+
+    :param tokens: Dictionary containing the user's access token in key
+    'access_token'
+    :type tokens: dict
+    :param profile: Dictionary with user's Spotify account details, see
+    /utils/spotify.py:get_user_profile
+    :type profile: dict
+    :param top_songs: List of Spotify track IDs of user's top songs, see
+    /utils/spotify.py:get_top_songs
+    :type top_songs: list
+    :returns: MongoID of the user in the database
+    """
     users = Collection('users')
     user_document = users.find('spotify_id', profile['spotify_id'])
     # Check if user already exists

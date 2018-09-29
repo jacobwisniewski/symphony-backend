@@ -5,7 +5,7 @@ from symphony.endpoints import callback, profile, create
 
 
 def create_app():
-    # Initialise the symphony
+    """Initialises the Flask Application with extension"""
     app = Flask(__name__)
 
     # Enable Cross Origin Resource Sharing

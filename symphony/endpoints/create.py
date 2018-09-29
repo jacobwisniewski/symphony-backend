@@ -19,6 +19,14 @@ parser.add_argument('algorithm', required=True, type=str,
 
 
 def get_user(args):
+    """Gets the MongoID from user's JSON parameters
+
+    The user is created or updated in the database if an access code was sent
+    in the parameters
+    :param args: JSON data that was sent to /api/create
+    :type args: dict
+    :returns: Document of the user in the database
+    """
     # Get the mongo_id for the user
     if args['access_code']:
         # Add/update user in database

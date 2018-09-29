@@ -6,11 +6,24 @@ from functools import wraps
 
 
 class LoginError(BaseException):
+    """Exception returned when invalid Spotify Access-Codes are used"""
     pass
 
 
 def get_tokens(access_code, page):
-    """Gets the access token, refresh token and expiry date in POSIX time"""
+    """Gets the tokens associated with the access code
+
+    :param access_code: Spotify access code after a user has logged into the
+    callback /{page}/callback
+    :type access_code: str
+    :param page: The page for the front-end to redirect to  after the call,
+    must be 'profile', 'create' or 'join'
+    :type page: str
+    :returns: Dictionary containing keys: 'access_token', 'refresh_token'
+    and 'expiry' - the expiry of the access token in POSIX time
+    :rtype: dict
+    :raises: LoginError if login using :param:access_code fails
+    """
     # Make POST request to Spotify API
     response = requests.post(
         'https://accounts.spotify.com/api/token',
@@ -40,6 +53,16 @@ def get_tokens(access_code, page):
 
 
 def get_user_profile(tokens):
+    """Gets the Spotify data of a user
+
+    :param tokens: Dictionary containing the user's access token in key
+    'access_token'
+    :type tokens: dict
+    :returns: Dictionary containing user data, 'spotify_id', 'user_name' and
+    'profile_picture'. Profile  picture will default to an empty user URL if
+    the user doesn't have one associated with Spotify
+    :rtype: dict
+    """
     access_token = tokens['access_token']
     response = requests.get(
         'https://api.spotify.com/v1/me',
@@ -66,6 +89,15 @@ def get_user_profile(tokens):
 
 
 def get_top_songs(tokens):
+    """Gets a user's top 50 songs from the last few weeks
+
+    :param tokens: Dictionary containing the user's access token in key
+    'access_token'
+    :type tokens: dict
+    :returns: List of Spotify track IDs, may be less than 50 songs depending
+    on user
+    :rtype: list
+    """
     access_token = tokens['access_token']
     response = requests.get(
         'https://api.spotify.com/v1/me/top/tracks',
@@ -79,6 +111,13 @@ def get_top_songs(tokens):
 
 
 def get_admin(func):
+    """Decorator to return admin MongoDB document
+
+    Decorator inspects current database for the admin user in the admin
+    collection. If it exists tokens are updated if they need to be and if it
+    does not exist a new document is created for the admin account.
+    The first argument of func should be reserved for the admin document.
+    """
     @wraps(func)
     def token_updated(*args, **kwargs):
         col = Collection('admin')
@@ -104,6 +143,14 @@ def get_admin(func):
 
 
 def update_tokens(refresh_token):
+    """Updates a user's access and refresh tokens
+
+    :param refresh_token: The refresh token of the user
+    :type refresh_token: str
+    :returns: Dictionary containing keys: 'access_token', 'refresh_token'
+    and 'expiry' - the expiry of the access token in POSIX time
+    :rtype: dict
+    """
     response = requests.post(
         'https://accounts.spotify.com/api/token',
         data={
@@ -125,8 +172,12 @@ def update_tokens(refresh_token):
 def create_playlist(admin, playlist_name):
     """Creates playlist on Symphony App Spotify account
 
-    Use by calling :func:create_playlist(playlist_name), :param:admin is
-    filled by the decorator
+    Use by calling :func:create_playlist(playlist_name)
+    :param admin: Admin document in database, automatically filled by decorator
+    :param playlist_name: The name of the Spotify playlist to be created
+    :type playlist_name: str
+    :returns: Tuple of the playlist id and the playlist URL
+    :rtype: tuple
     """
     profile = get_user_profile(admin['tokens'])
     admin_spotify_id = profile['spotify_id']
