@@ -37,7 +37,6 @@ def get_tokens(access_code, page):
     )
 
     if not response.ok:
-        print(response.json())
         raise LoginError('Invalid access code')
 
     json = response.json()
