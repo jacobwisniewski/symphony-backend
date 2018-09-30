@@ -12,6 +12,13 @@ parser.add_argument('access_code', required=True, type=str,
 
 class Profile(Resource):
     def post(self):
+        """POST /api/profile Returns a user's Symphony profile
+
+        :returns: JSON response with the user's MongoDB ID, Spotify user ID,
+            Spotify display name, profile picture URL and their current
+            gigs
+        :rtype: dict
+        """
         args = parser.parse_args()
         access_code = args['access_code']
 

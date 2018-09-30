@@ -14,13 +14,13 @@ def get_tokens(access_code, page):
     """Gets the tokens associated with the access code
 
     :param access_code: Spotify access code after a user has logged into the
-    callback /{page}/callback
+        callback /{page}/callback
     :type access_code: str
     :param page: The page for the front-end to redirect to  after the call,
-    must be 'profile', 'create' or 'join'
+        must be 'profile', 'create' or 'join'
     :type page: str
     :returns: Dictionary containing keys: 'access_token', 'refresh_token'
-    and 'expiry' - the expiry of the access token in POSIX time
+        and 'expiry' - the expiry of the access token in POSIX time
     :rtype: dict
     :raises: LoginError if login using :param:access_code fails
     """
@@ -56,11 +56,11 @@ def get_user_profile(tokens):
     """Gets the Spotify data of a user
 
     :param tokens: Dictionary containing the user's access token in key
-    'access_token'
+        'access_token'
     :type tokens: dict
     :returns: Dictionary containing user data, 'spotify_id', 'user_name' and
-    'profile_picture'. Profile  picture will default to an empty user URL if
-    the user doesn't have one associated with Spotify
+        'profile_picture'. Profile  picture will default to an empty user URL if
+        the user doesn't have one associated with Spotify
     :rtype: dict
     """
     access_token = tokens['access_token']
@@ -92,10 +92,10 @@ def get_top_songs(tokens):
     """Gets a user's top 50 songs from the last few weeks
 
     :param tokens: Dictionary containing the user's access token in key
-    'access_token'
+        'access_token'
     :type tokens: dict
     :returns: List of Spotify track IDs, may be less than 50 songs depending
-    on user
+        on user
     :rtype: list
     """
     access_token = tokens['access_token']
@@ -148,7 +148,7 @@ def update_tokens(refresh_token):
     :param refresh_token: The refresh token of the user
     :type refresh_token: str
     :returns: Dictionary containing keys: 'access_token', 'refresh_token'
-    and 'expiry' - the expiry of the access token in POSIX time
+        and 'expiry' - the expiry of the access token in POSIX time
     :rtype: dict
     """
     response = requests.post(
@@ -173,6 +173,7 @@ def create_playlist(admin, playlist_name):
     """Creates playlist on Symphony App Spotify account
 
     Use by calling :func:create_playlist(playlist_name)
+
     :param admin: Admin document in database, automatically filled by decorator
     :param playlist_name: The name of the Spotify playlist to be created
     :type playlist_name: str

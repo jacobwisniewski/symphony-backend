@@ -6,9 +6,10 @@ from symphony.utils import random_string
 
 class Callback(Resource):
     def get(self, page):
-        """Gets the URL to push to users for callback authentication
+        """GET /api/callback Returns a Spotify callback URL and state
 
         :returns: Callback URL with required scopes and randomised state
+        :rtype: dict
         """
         redirect_uri = os.environ['FRONTEND_URL'] + f'/{page}/callback'
         state = random_string(16)
