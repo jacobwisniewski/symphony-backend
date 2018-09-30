@@ -1,4 +1,4 @@
-from flask import make_response, jsonify
+from flask import current_app, abort
 from flask_restful import Resource, reqparse
 from symphony.db import spotify_user
 from symphony.utils import spotify
@@ -25,9 +25,8 @@ class Profile(Resource):
         try:
             tokens = spotify.get_tokens(access_code, 'profile')
         except spotify.LoginError:
-            return make_response(
-                jsonify({'message': 'Invalid credentials'}), 401
-            )
+            abort(401, 'Invalid credentials')
+            return
 
         # Get user details
         profile = spotify.get_user_profile(tokens)
@@ -43,4 +42,8 @@ class Profile(Resource):
             'profile_picture': profile['profile_picture'],
             'user_gigs': profile['user_gigs']
         }
+
+        log_msg = f"User {profile['user_name']} has viewed their profile"
+        current_app.logger.info(log_msg)
+
         return response

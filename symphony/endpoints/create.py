@@ -1,4 +1,4 @@
-from flask import make_response, jsonify
+from flask import current_app, abort
 from flask_restful import Resource, reqparse
 from symphony.db import Collection, spotify_user
 from symphony.utils import spotify
@@ -82,15 +82,15 @@ class Create(Resource):
 
         # Checks that either access code or mongo id were provided
         if not args['access_code'] and not args['mongo_id']:
-            return make_response(
-                jsonify({'message': 'Invite code or Mongo ID required'}), 400)
+            abort(400, 'Invite code or Mongo ID required')
+            return
 
         # Uses provided credentials to get a user from the database
         try:
             user = get_user(args)
         except spotify.LoginError:
-            return make_response(
-                jsonify({'message': 'Invalid credentials'}), 401)
+            abort(401, 'Invalid credentials')
+            return
 
         gigs = Collection('gigs')
 
@@ -127,5 +127,8 @@ class Create(Resource):
                     'playlist_id': playlist_id,
                     'playlist_url': playlist_url,
                     'gig_id': gig_id}
+
+        log_msg = f"New gig {args['gig_name']} created by {user['user_name']}"
+        current_app.logger.info(log_msg)
 
         return response
