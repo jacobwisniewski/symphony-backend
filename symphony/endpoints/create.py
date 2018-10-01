@@ -1,4 +1,4 @@
-from flask import make_response, jsonify
+from flask import current_app, abort
 from flask_restful import Resource, reqparse
 from symphony.db import Collection, spotify_user
 from symphony.utils import spotify
@@ -19,6 +19,15 @@ parser.add_argument('algorithm', required=True, type=str,
 
 
 def get_user(args):
+    """Gets the MongoID from user's JSON parameters
+
+    The user is created or updated in the database if an access code was sent
+    in the parameters
+    :param args: JSON data that was sent to /api/create
+    :type args: dict
+    :returns: Document of the user in the database
+    :rtype: pymongo.Document
+    """
     # Get the mongo_id for the user
     if args['access_code']:
         # Add/update user in database
@@ -34,6 +43,16 @@ def get_user(args):
 
 
 def update_user(args, playlist_url, user):
+    """Updates a user's details in the database
+
+    :param args: Request POST arguments that the user sent
+    :type args: dict
+    :param playlist_url: URL of the playlist the user has created
+    :type playlist_url: str
+    :param user: The user's current document in the database
+    :type user: pymongo.Document
+    :returns: None
+    """
     # Format data to update for user
     user_gigs = user['user_gigs']
     user_gigs.append(args['gig_name'])
@@ -53,19 +72,25 @@ def update_user(args, playlist_url, user):
 
 class Create(Resource):
     def post(self):
+        """POST /api/create - Creates a gig if given correct parameters
+
+        :returns: JSON with an unique invite code, the created playlist
+            Spotify ID, the playlist's URL and the MongoDB ID of the gig
+        :rtype: dict
+        """
         args = parser.parse_args()
 
         # Checks that either access code or mongo id were provided
         if not args['access_code'] and not args['mongo_id']:
-            return make_response(
-                jsonify({'message': 'Invite code or Mongo ID required'}), 400)
+            abort(400, 'Invite code or Mongo ID required')
+            return
 
         # Uses provided credentials to get a user from the database
         try:
             user = get_user(args)
         except spotify.LoginError:
-            return make_response(
-                jsonify({'message': 'Invalid credentials'}), 401)
+            abort(401, 'Invalid credentials')
+            return
 
         gigs = Collection('gigs')
 
@@ -102,5 +127,8 @@ class Create(Resource):
                     'playlist_id': playlist_id,
                     'playlist_url': playlist_url,
                     'gig_id': gig_id}
+
+        log_msg = f"New gig {args['gig_name']} created by {user['user_name']}"
+        current_app.logger.info(log_msg)
 
         return response
