@@ -7,3 +7,6 @@
 # Ignore config files
 *.cfg
 config.bat
+
+# Ignore pycache
+/__pycache__
