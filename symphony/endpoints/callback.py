@@ -19,7 +19,7 @@ class Callback(Resource):
             'response_type': 'code',
             'redirect_uri': redirect_uri,
             'scope': 'user-top-read user-read-private',
-            'show_dialog': False,
+            'show_dialog': True,
             'state': state
         }
         encoded_params = urlencode(query_params)
