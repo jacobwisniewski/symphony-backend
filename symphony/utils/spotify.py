@@ -76,7 +76,7 @@ def get_user_profile(tokens):
         profile_picture = response['images'][0]['url']
     else:
         # Blank profile picture for users without one
-        profile_picture = 'https://imgur.com/a/crZnMzs'
+        profile_picture = 'https://i.imgur.com/FteILMO.png'
 
     profile = {
         'spotify_id': response['id'],
