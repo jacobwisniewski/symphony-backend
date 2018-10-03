@@ -1,6 +1,7 @@
 import os
 from pymongo import ReturnDocument
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 
 class Collection:
@@ -22,7 +23,7 @@ class Collection:
         :returns: Document's MongoDB ID
         :rtype: pymongo.document
         """
-        return self.collection.find_one({'_id': _id})
+        return self.collection.find_one({'_id': ObjectId(_id)})
 
     def insert(self, document):
         """Inserts a document to the current collection and returns _id
