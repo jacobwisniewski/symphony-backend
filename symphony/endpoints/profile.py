@@ -1,13 +1,41 @@
 from flask import current_app, abort
 from flask_restful import Resource, reqparse
-from symphony.db import spotify_user
+from symphony.db import spotify_user, Collection
 from symphony.utils import spotify
 
 
 # Parser for /api/profile
 parser = reqparse.RequestParser(bundle_errors=True)
-parser.add_argument('access_code', required=True, type=str,
-                    help='Access code is required')
+parser.add_argument('access_code', type=str, default=None)
+parser.add_argument('mongo_id', type=str, default=None)
+
+
+def get_user(args):
+    """Gets the MongoID from user's JSON parameters
+
+    The user is created or updated in the database if an access code was sent
+    in the parameters
+    :param args: JSON data that was sent to /api/create
+    :type args: dict
+    :returns: Document of the user in the database
+    :rtype: pymongo.Document
+    """
+    # Get the mongo_id for the user
+    if args['access_code']:
+        # Add/update user in database
+        try:
+            tokens = spotify.get_tokens(args['access_code'], 'create')
+        except spotify.LoginError:
+            # If getting tokens returns an error, return no user
+            return None
+        profile = spotify.get_user_profile(tokens)
+        top_songs = spotify.get_top_songs(tokens)
+        mongo_id = spotify_user.create_update(tokens, profile, top_songs)
+    else:
+        mongo_id = args['mongo_id']
+
+    users = Collection('users')
+    return users[mongo_id]
 
 
 class Profile(Resource):
@@ -20,30 +48,27 @@ class Profile(Resource):
         :rtype: dict
         """
         args = parser.parse_args()
-        access_code = args['access_code']
 
-        try:
-            tokens = spotify.get_tokens(access_code, 'profile')
-        except spotify.LoginError:
+        # Checks that either access code or Mongo ID are provided
+        if not args['access_code'] and not args['mongo_id']:
+            abort(400, 'Invite code or Mongo ID required')
+            return
+
+        user = get_user(args)
+        if not user:
             abort(401, 'Invalid credentials')
             return
 
-        # Get user details
-        profile = spotify.get_user_profile(tokens)
-        top_songs = spotify.get_top_songs(tokens)
-        # Add user to database
-        mongo_id = spotify_user.create_update(tokens, profile, top_songs)
-
         # API JSON response
         response = {
-            'mongo_id': mongo_id,
-            'spotify_id': profile['spotify_id'],
-            'user_name': profile['user_name'],
-            'profile_picture': profile['profile_picture'],
-            'user_gigs': profile['user_gigs']
+            'mongo_id': str(user['_id']),
+            'spotify_id': user['spotify_id'],
+            'user_name': user['user_name'],
+            'profile_picture': user['profile_picture'],
+            'user_gigs': user['user_gigs']
         }
 
-        log_msg = f"User {profile['user_name']} has viewed their profile"
+        log_msg = f"User {user['user_name']} has viewed their profile"
         current_app.logger.info(log_msg)
 
         return response

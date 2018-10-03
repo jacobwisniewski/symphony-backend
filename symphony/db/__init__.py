@@ -20,7 +20,7 @@ class Collection:
         :param _id: The MongoDB ID of the document to retrieve
         :type _id: str
         :returns: Document's MongoDB ID
-        :rtype: str
+        :rtype: pymongo.document
         """
         return self.collection.find_one({'_id': _id})
 
