@@ -24,7 +24,7 @@ def get_user(args):
     if args['access_code']:
         # Add/update user in database
         try:
-            tokens = spotify.get_tokens(args['access_code'], 'create')
+            tokens = spotify.get_tokens(args['access_code'], 'profile')
         except spotify.LoginError:
             # If getting tokens returns an error, return no user
             return None
