@@ -23,11 +23,7 @@ def get_user(args):
     # Get the mongo_id for the user
     if args['access_code']:
         # Add/update user in database
-        try:
-            tokens = spotify.get_tokens(args['access_code'], 'create')
-        except spotify.LoginError:
-            # If getting tokens returns an error, return no user
-            return None
+        tokens = spotify.get_tokens(args['access_code'], 'profile')
         profile = spotify.get_user_profile(tokens)
         top_songs = spotify.get_top_songs(tokens)
         mongo_id = spotify_user.create_update(tokens, profile, top_songs)
