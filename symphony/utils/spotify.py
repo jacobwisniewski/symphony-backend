@@ -156,7 +156,7 @@ def update_tokens(refresh_token):
         'https://accounts.spotify.com/api/token',
         data={
             'grant_type': 'refresh_token',
-            'code': refresh_token,
+            'refresh_token': refresh_token,
             'client_id': os.environ['CLIENT_ID'],
             'client_secret': os.environ['CLIENT_SECRET']
         })
