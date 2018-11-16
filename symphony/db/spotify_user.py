@@ -59,11 +59,11 @@ def _create_user(profile, tokens, top_songs, users):
     return mongo_id
 
 
-def update_user(args, playlist_url, user):
+def update_user(gig_name, playlist_url, user):
     """Updates a user's details in the database
 
-    :param args: Request POST arguments that the user sent
-    :type args: dict
+    :param gig_name: Request POST arguments that the user sent
+    :type gig_name: dict
     :param playlist_url: URL of the playlist the user has created
     :type playlist_url: str
     :param user: The user's current document in the database
@@ -72,9 +72,9 @@ def update_user(args, playlist_url, user):
     """
     # Format data to update for user
     user_gigs = user['user_gigs']
-    user_gigs.append(args['gig_name'])
+    user_gigs.append(gig_name['gig_name'])
     user_stats = user['stats']
-    user_stats['gig_history'].append(args['gig_name'])
+    user_stats['gig_history'].append(gig_name['gig_name'])
     user_stats['past_playlist_urls'].append(playlist_url)
 
     # Update user data
