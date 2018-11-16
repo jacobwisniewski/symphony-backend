@@ -5,6 +5,8 @@ from symphony.db import Collection, spotify_user
 parser = reqparse.RequestParser(bundle_errors=True)
 parser.add_argument('mongo_id', type=str, required=True, default=None,
                     help='Mongo ID is required')
+parser.add_argument('invite_code', type=str, required=True,
+                    help='Invite code is required')
 
 
 class Join(Resource):

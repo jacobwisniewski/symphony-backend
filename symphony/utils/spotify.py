@@ -127,7 +127,9 @@ def get_admin(func):
             now = time.time()
             # Use refresh token if access token is expired
             if now > expiry + 10:
-                tokens = update_tokens(admin['tokens']['refresh_token'])
+                refresh_token = admin['tokens']['refresh_token']
+                tokens = update_tokens(refresh_token)
+                tokens['refresh_token'] = refresh_token
                 col.update(admin['_id'], {'tokens': tokens})
         else:
             # Source the admin access code from env var
@@ -154,14 +156,14 @@ def update_tokens(refresh_token):
         'https://accounts.spotify.com/api/token',
         data={
             'grant_type': 'refresh_token',
-            'refresh_token': refresh_token,
+            'code': refresh_token,
             'client_id': os.environ['CLIENT_ID'],
             'client_secret': os.environ['CLIENT_SECRET']
         })
     data = response.json()
     tokens = {
         'access_token': data['access_token'],
-        'refresh_token': data['refresh_token'],
+        # 'refresh_token': data['refresh_token'],
         'expiry': time.time() + data['expires_in'],
     }
     return tokens
