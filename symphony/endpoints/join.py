@@ -25,7 +25,10 @@ class Join(Resource):
         if not gig:
             abort(400, 'Invalid invite code')
 
-        spotify_user.update_user(gig['gig_name'], gig['playlist_url'], user)
+        if args['mongo_id'] in gig['users']:
+            abort(405, 'User is already in this gig')
+
+        spotify_user.update_user(str(gig['_id']), gig['playlist_url'], user)
 
         response = {'playlist_url': gig['playlist_url'],
                     'playlist_id': gig['playlist_id'],

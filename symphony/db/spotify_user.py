@@ -59,11 +59,11 @@ def _create_user(profile, tokens, top_songs, users):
     return mongo_id
 
 
-def update_user(gig_name, playlist_url, user):
+def update_user(gig_id, playlist_url, user):
     """Updates a user's details in the database
 
-    :param gig_name: Name of the gig that the user has joined
-    :type gig_name: dict
+    :param gig_id: ID of the gig that the user has joined
+    :type gig_id: str
     :param playlist_url: URL of the playlist the user has created
     :type playlist_url: str
     :param user: The user's current document in the database
@@ -71,10 +71,9 @@ def update_user(gig_name, playlist_url, user):
     :returns: None
     """
     # Format data to update for user
-    user_gigs = user['user_gigs']
-    user_gigs.append(gig_name)
-    user_stats = user['stats']
-    user_stats['gig_history'].append(gig_name)
+    user_gigs, user_stats = user['user_gigs'], user['stats']
+    user_gigs.append(gig_id)
+    user_stats['gig_history'].append(gig_id)
     user_stats['past_playlist_urls'].append(playlist_url)
 
     # Update user data

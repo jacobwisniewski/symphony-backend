@@ -64,12 +64,12 @@ class Create(Resource):
             'invite_code': invite_code
         })
 
-        update_user(args, playlist_url, user)
+        update_user(str(gig_id), playlist_url, user)
 
         response = {'invite_code': invite_code,
                     'playlist_id': playlist_id,
                     'playlist_url': playlist_url,
-                    'gig_id': gig_id}
+                    'gig_id': str(gig_id)}
 
         log_msg = f"New gig {args['gig_name']} created by {user['user_name']}"
         current_app.logger.info(log_msg)
