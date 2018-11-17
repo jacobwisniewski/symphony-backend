@@ -64,7 +64,8 @@ class Create(Resource):
             'invite_code': invite_code
         })
 
-        update_user(str(gig_id), playlist_url, user)
+        gig_info = {'gig_name': args['gig_name'], 'gig_id': str(gig_id)}
+        update_user(gig_info, playlist_url, user)
 
         response = {'invite_code': invite_code,
                     'playlist_id': playlist_id,
