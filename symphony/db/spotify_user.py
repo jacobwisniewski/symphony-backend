@@ -62,7 +62,7 @@ def _create_user(profile, tokens, top_songs, users):
 def update_user(gig_info, playlist_url, user):
     """Updates a user's details in the database
 
-    :param gig_info: ID of the gig that the user has joined
+    :param gig_info: Information for the gig that the user has joined
     :type gig_info: dict
     :param playlist_url: URL of the playlist the user has created
     :type playlist_url: str
