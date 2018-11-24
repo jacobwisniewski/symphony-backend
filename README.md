@@ -1,27 +1,31 @@
 # Symphony Flask Backend
 
 ## How to start development version of Flask API
-Start by cd-ing to symphony-backend directory
+Create a `config.py` file in the `/symphony` directory. It should contain the
+following variables:
+```
+CLIENT_ID = (Spotify Client ID for app)
+CLIENT_SECRET = (Spotify Client Secret for app)
+REDIRECT_URI = (Redirect URI for Spotify)
+DB_ARGS = 'dbname=dbname user=user password=secret' (Fill with Postgres data)
+FRONTEND_URL = (Base URL of the front-end)
+ADMIN_ID = (Spotify ID of the admin account)
+```
+
+`cd` to `/symphony-backend` directory
 - Windows Systems:
     ```
-    set FLASK_APP=app
+    set FLASK_APP=symphony
     set FLASK_ENV=development
-    set DATABASE_URL=
-    set CLIENT_ID=
-    set CLIENT_SECRET=
-    set FRONTEND_URL=
     flask run
     ```
 - Unix Systems:
     ```
-    export FLASK_APP=app
+    export FLASK_APP=symphony
     export FLASK_ENV=development
-    export DATABASE_URL=
-    export CLIENT_ID=
-    export CLIENT_SECRET=
-    export FRONTEND_URL=
     flask run
     ```
+
 ### Required Environment Variables
 - FLASK_APP: Set to symphony
 - FLASK_ENV: development when testing
