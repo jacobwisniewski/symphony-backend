@@ -26,6 +26,7 @@ def get_user_data(args):
             config.CLIENT_ID,
             config.CLIENT_SECRET,
             redirect_uri=f'{config.FRONTEND_URL}/profile/callback',
+            scope='user-library-read,user-top-read'
         )
         tokens = auth.get_access_token(args['access_code'])
         if not tokens:
@@ -33,7 +34,7 @@ def get_user_data(args):
 
         client = spotipy.client.Spotify(tokens['access_token'])
         current_user = client.current_user()
-        key = users.add_user(cursor, client, current_user, tokens)
+        key = users.add_user(cursor, client, current_user)
     else:
         key = args['api_key']
 
@@ -57,18 +58,21 @@ def get_user_data(args):
         """
         SELECT
             gigs.invite_code,
-            gigs.name as owner_name,
+            gigs.name,
             gigs.playlist_url,
             gigs.playlist_id,
             gigs.private,
             gigs.latitude,
             gigs.longitude,
+            users.name as owner_name
         FROM gigs
         INNER JOIN gig_links
         ON gigs.invite_code = gig_links.gig_id
+        INNER JOIN users
+        ON gigs.owner_id = users.id
         WHERE gig_links.user_id = %s
         """,
-        (user['id'],)
+        (user['spotify_id'],)
     )
     user['gigs'] = cursor.fetchall()
 
@@ -87,7 +91,12 @@ class Profile(Resource):
             abort(400, 'Access code or API key required')
             return
 
-        user = get_user_data(args)
+        try:
+            user = get_user_data(args)
+        except spotipy.oauth2.SpotifyOauthError:
+            abort(401, 'Invalid credentials')
+            return
+
         if not user:
             abort(401, 'Invalid credentials')
             return

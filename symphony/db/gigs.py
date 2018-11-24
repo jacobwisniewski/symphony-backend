@@ -10,17 +10,17 @@ def create_gig(conn, gig_info):
             playlist_id,
             private,
             latitude,
-            longitude,
+            longitude
         )
         VALUES (
-            %(invite_code)s
+            %(invite_code)s,
             %(owner_id)s,
             %(name)s,
             %(playlist_url)s,
             %(playlist_id)s,
             %(private)s,
             %(latitude)s,
-            %(longitude)s,
+            %(longitude)s
         )
         """,
         gig_info

@@ -22,29 +22,33 @@ def get_gig_recommendations(conn, gig_id):
         model = content_based.train_model(data)
         content_based.predict_tracks(conn, user, model)
 
+    conn.commit()
+
     num_users = len(users)
 
     # Get top songs of the users in the gig
     curs.execute(
         """
-        SELECT tracks.id
+        SELECT
+            tracks.id
         FROM ratings
-        LEFT  JOIN artists     ON ratings.track_id = artists.track_id
-        INNER JOIN tracks      ON tracks.id = ratings.track_id
+        INNER JOIN tracks    ON tracks.id = ratings.track_id
         INNER JOIN gig_links ON gig_links.user_id = ratings.user_id
-                                  AND gig_links.gig_id = %s
-        gig BY tracks.id, tracks.name
-        ORDER BY avg_rating DESC
+        WHERE gig_links.gig_id = %s
+        GROUP BY tracks.id, tracks.name
+        ORDER BY AVG(ratings.rating) DESC
         """,
         (gig_id, )
     )
 
     # Scale number of songs to fetch with number of users
-    songs_to_fetch = 40
+    tracks_to_fetch = 40
     if num_users > 4:
-        songs_to_fetch = num_users * 10
+        tracks_to_fetch = num_users * 10
 
-    return curs.fetchmany(songs_to_fetch)
+    query_data = curs.fetchmany(tracks_to_fetch)
+    tracks = [track_tuple[0] for track_tuple in query_data]
+    return tracks
 
 
 def main():

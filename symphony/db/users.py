@@ -11,13 +11,13 @@ def insert_data(client, cursor, user_id, time_frame, limit):
 def key_exists(cursor, key):
     cursor.execute(
         """
-        SELECT gigs.api_key
-        FROM gigs
+        SELECT *
+        FROM users
         WHERE api_key = %s
         """,
-        key
+        (key, )
     )
-    return cursor.fetchone()[0]
+    return cursor.fetchone()
 
 
 def get_api_key(cursor):
@@ -27,9 +27,9 @@ def get_api_key(cursor):
     return api_key
 
 
-def add_user(cursor, client, user, tokens):
+def add_user(cursor, client, user):
     # Fill in missing user data
-    if 'images' in user:
+    if user['images']:
         profile_picture = user['images'][0]['url']
     else:
         profile_picture = 'https://i.imgur.com/FteILMO.png'
@@ -44,15 +44,9 @@ def add_user(cursor, client, user, tokens):
             id,
             api_key,
             name,
-            profile_picture,
-            access_token,
-            token_type,
-            expires_in,
-            refresh_token,
-            scope,
-            expires_at
+            profile_picture
         )
-        VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES(%s, %s, %s, %s)
         ON CONFLICT (id)
             DO NOTHING
         """,
@@ -61,15 +55,11 @@ def add_user(cursor, client, user, tokens):
             api_key,
             user['display_name'],
             profile_picture,
-            tokens['access_token'],
-            tokens['token_type'],
-            tokens['expires_in'],
-            tokens['refresh_token'],
-            tokens['scope'],
-            tokens['expires_at']
         )
     )
     # Scrape listening habits of user
     insert_data(client, cursor, user['id'], 'long_term', 20)
     insert_data(client, cursor, user['id'], 'medium_term', 30)
     insert_data(client, cursor, user['id'], 'short_term', 40)
+
+    return api_key

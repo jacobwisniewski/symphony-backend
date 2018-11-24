@@ -16,7 +16,8 @@ class Callback(Resource):
             config.CLIENT_ID,
             config.CLIENT_SECRET,
             redirect_uri=f'{config.FRONTEND_URL}/{page}/callback',
-            state=state
+            state=state,
+            scope='user-library-read,user-top-read'
         )
         authorize_url = auth.get_authorize_url()
         return {'url': authorize_url, 'state': state}

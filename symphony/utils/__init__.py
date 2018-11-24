@@ -13,7 +13,7 @@ def random_string(length):
 def get_admin_token():
     token = spotipy.util.prompt_for_user_token(
         username=config.ADMIN_ID,
-        scope='playlist-modify-public,playlist-read-private',
+        scope='playlist-modify-public',
         client_id=config.CLIENT_ID,
         client_secret=config.CLIENT_SECRET,
         redirect_uri=config.REDIRECT_URI
@@ -27,11 +27,15 @@ def find_similar_gigs(cursor, invite_code):
         SELECT
             gigs.name as gig_name,
             gigs.invite_code,
-            gigs.owner_name,
             gigs.playlist_url,
             gigs.playlist_id,
-        WHERE
-            gigs.invite_code = %s
+            users.name as owner_name
+        FROM gigs
+        INNER JOIN gig_links
+        ON gigs.invite_code = gig_links.gig_id
+        INNER JOIN users
+        ON gigs.owner_id = users.id
+        WHERE gigs.invite_code = %s
         """,
         (invite_code,)
     )
@@ -43,11 +47,13 @@ def user_in_gig(invite_code, cursor, user):
     cursor.execute(
         """
         SELECT EXISTS(
-            SELECT 1 FROM gig_links
-            WHERE gigs_links.gig_id = %s
+            SELECT 1
+            FROM gig_links
+            WHERE gig_links.gig_id = %s
                 AND gig_links.user_id = %s
         )
         """,
         (invite_code, user['id'])
     )
-    return cursor.fetchone()[0]
+    response = cursor.fetchone()
+    return response['exists']

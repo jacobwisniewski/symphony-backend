@@ -39,7 +39,7 @@ class Join(Resource):
 
         # Check if user is already in the gig
         if user_in_gig(args['invite_code'], cursor, user):
-            abort(405, 'User is already in this gig')
+            abort(400, 'User is already in this gig')
 
         # Add user to gig
         cursor.execute(
@@ -58,17 +58,10 @@ class Join(Resource):
         admin_token = utils.get_admin_token()
         admin = spotipy.Spotify(auth=admin_token)
 
-        # Delete old tracks
-        items = admin.user_playlist(user, playlist_id=gig['playlist_id'],
-                                    fields='tracks')['tracks']['items']
-        old_tracks = [item['id'] for item in items]
-        admin.user_playlist_remove_all_occurrences_of_tracks(
-            config.ADMIN_ID, gig['playlist_id'], old_tracks)
-
         # Add recommendations to the playlist
-        admin.user_playlist_add_tracks(config.ADMIN_ID,
-                                       gig['playlist_id'],
-                                       tracks)
+        admin.user_playlist_replace_tracks(config.ADMIN_ID,
+                                           gig['playlist_id'],
+                                           tracks)
 
         # Generate API response
         response = {
@@ -79,7 +72,7 @@ class Join(Resource):
             'owner_name': gig['owner_name'],
         }
 
-        log_msg = f"User {user['user_name']} connected to {gig['gig_name']}"
+        log_msg = f"User {user['name']} connected to {gig['gig_name']}"
         current_app.logger.info(log_msg)
 
         return response

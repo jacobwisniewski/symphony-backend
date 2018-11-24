@@ -50,12 +50,6 @@ def create_db(conn):
             api_key          TEXT     NOT NULL  UNIQUE,
             name             TEXT     NOT NULL,
             profile_picture  TEXT     NOT NULL,
-            access_token     TEXT     NOT NULL,
-            token_type       TEXT     NOT NULL,
-            expires_in       INTEGER  NOT NULL,
-            refresh_token    TEXT     NOT NULL,
-            scope            TEXT     NOT NULL,
-            expires_at       INTEGER  NOT NULL,
             PRIMARY KEY(id)
         )        
         """

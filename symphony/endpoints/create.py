@@ -53,7 +53,7 @@ class Create(Resource):
         gig_info = {
             'owner_id': user['id'],
             'name': args['gig_name'],
-            'playlist_url': playlist['href'],
+            'playlist_url': playlist['external_urls']['spotify'],
             'playlist_id': playlist['id'],
             'private': args['private'],
             'latitude': args['latitude'],
@@ -61,23 +61,26 @@ class Create(Resource):
             'invite_code': invite_code
         }
         gigs.create_gig(conn, gig_info)
+        gigs.join_gig(conn, user['id'], invite_code)
 
         # Get the recommendations for the gig
         tracks = group_recommender.get_gig_recommendations(conn, invite_code)
+
         # Add recommendations to the playlist
         admin.user_playlist_add_tracks(config.ADMIN_ID,
                                        playlist['id'],
                                        tracks)
-
         # Generate API response
         response = {
             'gig_name': args['gig_name'],
             'invite_code': invite_code,
-            'playlist_url': playlist['href'],
+            'playlist_url': playlist['external_urls']['spotify'],
             'playlist_id': playlist['id'],
         }
 
-        log_msg = f"New gig {args['gig_name']} created by {user['user_name']}"
+        log_msg = f"Gig Name: {args['gig_name']}, " \
+                  f"Created By: {user['name']}, " \
+                  f"Playlist Link: {playlist['external_urls']['spotify']}"
         current_app.logger.info(log_msg)
 
         return response

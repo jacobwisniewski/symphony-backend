@@ -1,4 +1,4 @@
-from flask import abort
+from flask import abort, current_app
 from flask_restful import Resource, reqparse
 from symphony.utils import group_recommender, find_similar_gigs, user_in_gig
 import psycopg2
@@ -58,16 +58,12 @@ class Leave(Resource):
         admin_token = utils.get_admin_token()
         admin = spotipy.Spotify(auth=admin_token)
 
-        # Delete old tracks
-        items = admin.user_playlist(user, playlist_id=gig['playlist_id'],
-                                    fields='tracks')['tracks']['items']
-        old_tracks = [item['id'] for item in items]
-        admin.user_playlist_remove_all_occurrences_of_tracks(
-            config.ADMIN_ID, gig['playlist_id'], old_tracks)
-
         # Add recommendations to the playlist
-        admin.user_playlist_add_tracks(config.ADMIN_ID,
-                                       gig['playlist_id'],
-                                       tracks)
+        admin.user_playlist_replace_tracks(config.ADMIN_ID,
+                                           gig['playlist_id'],
+                                           tracks)
+
+        log_msg = f"User {user['name']} has left {gig['gig_name']}"
+        current_app.logger.info(log_msg)
 
         return {'message': 'Gig successfully left'}
