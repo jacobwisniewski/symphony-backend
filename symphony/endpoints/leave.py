@@ -54,9 +54,18 @@ class Leave(Resource):
         tracks = group_recommender.get_gig_recommendations(conn,
                                                            args['invite_code'])
 
-        # Add recommendations to the playlist
+        # Authenticate admin Symphony account
         admin_token = utils.get_admin_token()
         admin = spotipy.Spotify(auth=admin_token)
+
+        # Delete old tracks
+        items = admin.user_playlist(user, playlist_id=gig['playlist_id'],
+                                    fields='tracks')['tracks']['items']
+        old_tracks = [item['id'] for item in items]
+        admin.user_playlist_remove_all_occurrences_of_tracks(
+            config.ADMIN_ID, gig['playlist_id'], old_tracks)
+
+        # Add recommendations to the playlist
         admin.user_playlist_add_tracks(config.ADMIN_ID,
                                        gig['playlist_id'],
                                        tracks)
