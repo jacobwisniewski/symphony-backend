@@ -10,3 +10,12 @@ config.bat
 
 # Ignore pycache
 __pycache__/
+
+# Ignore database files
+*.db
+
+# Ignore cache files for Spotipy
+*.cache*
+
+# Ignore config files
+symphony/config.py

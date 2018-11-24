@@ -1,7 +1,7 @@
-import os
 from flask_restful import Resource
-from urllib.parse import urlencode
 from symphony.utils import random_string
+from symphony import config
+from spotipy import oauth2
 
 
 class Callback(Resource):
@@ -11,17 +11,12 @@ class Callback(Resource):
         :returns: Callback URL with required scopes and randomised state
         :rtype: dict
         """
-        redirect_uri = os.environ['FRONTEND_URL'] + f'/{page}/callback'
         state = random_string(16)
-        base_url = 'https://accounts.spotify.com/authorize/?'
-        query_params = {
-            'client_id': os.environ['CLIENT_ID'],
-            'response_type': 'code',
-            'redirect_uri': redirect_uri,
-            'scope': 'user-top-read user-read-private',
-            'show_dialog': True,
-            'state': state
-        }
-        encoded_params = urlencode(query_params)
-        encoded_url = base_url + encoded_params
-        return {'url': encoded_url, 'state': state}
+        auth = oauth2.SpotifyOAuth(
+            config.CLIENT_ID,
+            config.CLIENT_SECRET,
+            redirect_uri=f'{config.FRONTEND_URL}/{page}/callback',
+            state=state
+        )
+        authorize_url = auth.get_authorize_url()
+        return {'url': authorize_url, 'state': state}

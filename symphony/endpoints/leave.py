@@ -1,20 +1,20 @@
-from flask import current_app, abort
+from flask import abort
 from flask_restful import Resource, reqparse
 from symphony.utils import group_recommender, find_similar_gigs, user_in_gig
 import psycopg2
 from psycopg2 import extras
-from symphony import config
-from symphony import utils
+from symphony import config, utils
 import spotipy
+
 
 parser = reqparse.RequestParser(bundle_errors=True)
 parser.add_argument('api_key', type=str, required=True, default=None,
-                    help='API key is required')
+                    help='API Key is required')
 parser.add_argument('invite_code', type=str, required=True,
                     help='Invite code is required')
 
 
-class Join(Resource):
+class Leave(Resource):
     def post(self):
         args = parser.parse_args()
 
@@ -24,7 +24,7 @@ class Join(Resource):
 
         # Uses provided credentials to get a user from the database
         api_key = args['api_key']
-        cursor.execute('SELECT * FROM users WHERE api_key = %s', (api_key, ))
+        cursor.execute('SELECT * FROM users WHERE api_key = %s', (api_key,))
         user = cursor.fetchone()
 
         if not user:
@@ -38,14 +38,14 @@ class Join(Resource):
             abort(400, 'Invalid invite code')
 
         # Check if user is already in the gig
-        if user_in_gig(args['invite_code'], cursor, user):
-            abort(405, 'User is already in this gig')
+        if not user_in_gig(args['invite_code'], cursor, user):
+            abort(405, 'User is not in this gig')
 
         # Add user to gig
         cursor.execute(
             """
-            INSERT INTO gig_links(user_id, gig_id)
-            VALUES (%s, %s)
+            DELETE FROM gig_links
+            WHERE user_id = %s AND gig_id = %s
             """,
             (user['id'], args['invite_code'])
         )
@@ -61,13 +61,4 @@ class Join(Resource):
                                        gig['playlist_id'],
                                        tracks)
 
-        # Generate API response
-        response = {'playlist_url': gig['playlist_url'],
-                    'playlist_id': gig['playlist_id'],
-                    'gig_name': gig['gig_name'],
-                    'owner_name': gig['owner_name']}
-
-        log_msg = f"User {user['user_name']} connected to {gig['gig_name']}"
-        current_app.logger.info(log_msg)
-
-        return response
+        return {'message': 'Gig successfully left'}
