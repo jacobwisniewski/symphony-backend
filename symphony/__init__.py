@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
-from symphony.endpoints import callback, profile, create, join, leave
+from symphony.endpoints import callback, profile, create, join, leave, find
 from symphony import config
 import psycopg2
 
@@ -30,6 +30,7 @@ def create_app():
     api.add_resource(create.Create, '/api/create')
     api.add_resource(join.Join, '/api/join')
     api.add_resource(leave.Leave, '/api/leave')
+    api.add_resource(find.Find, '/api/find')
 
     return app
 
