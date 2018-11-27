@@ -26,15 +26,6 @@ ADMIN_ID = (Spotify ID of the admin account)
     flask run
     ```
 
-### Required Environment Variables
-- FLASK_APP: Set to symphony
-- FLASK_ENV: development when testing
-- DATABASE_URL: MongoDB URL
-- CLIENT_ID: Spotify Client ID
-- CLIENT_SECRET: Spotify Client Secret
-- FRONTEND_URL: The frontend URL, used for callbacks
-  - '/profile/callback', '/create/callback' and '/join/callback' should be registered as callback URIs for Spotify
-
 ## How to use MongoDB compass (GUI style tool for MongoDB clusters)
 Do these steps if you have never used MongoDB compass
 1. Download [MongoDB compass](https://www.mongodb.com/download-center?jmp=hero#compass), remember to choose your systems package
