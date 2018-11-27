@@ -36,6 +36,10 @@ class Create(Resource):
         if not user:
             abort(401, 'Invalid credentials')
 
+        if args['private'] is False:
+            if args['longitude'] is None or args['latitude'] is None:
+                abort(400, 'Public playlists require coordinates')
+
         # Picks a unique invite code
         invite_code = utils.random_string(6)
         similar_gigs = find_similar_gigs(cursor, invite_code)
