@@ -76,6 +76,11 @@ def get_user_data(args):
     )
     user['gigs'] = cursor.fetchall()
 
+    # Convert Decimal objects to Floats for JSON serialising
+    for gig in user['gigs']:
+        gig['latitude'] = float(gig['latitude'])
+        gig['longitude'] = float(gig['longitude'])
+
     conn.commit()
     conn.close()
 

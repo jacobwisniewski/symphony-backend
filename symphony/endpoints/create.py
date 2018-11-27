@@ -11,7 +11,7 @@ import spotipy
 # Parser for /api/create
 parser = reqparse.RequestParser(bundle_errors=True)
 parser.add_argument('api_key', type=str, required=True, default=None,
-                    help='User ID is required')
+                    help='API key is required')
 parser.add_argument('latitude', type=float, default=None)
 parser.add_argument('longitude', type=float, default=None)
 parser.add_argument('gig_name', required=True, type=str,

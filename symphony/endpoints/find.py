@@ -31,7 +31,7 @@ class Find(Resource):
         if not user:
             abort(401, 'Invalid credentials')
 
-        # Query the database for public Gigs
+        # Query the database for public Gigs that the user isn't already in
         cursor.execute(
             """
             SELECT
@@ -46,17 +46,30 @@ class Find(Resource):
             FROM gigs
             INNER JOIN users
             ON gigs.owner_id = users.id
-            WHERE gigs.private = FALSE
-            """
+            INNER JOIN gig_links
+            ON gig_links.gig_id = gigs.invite_code
+            WHERE 
+                gigs.private = FALSE
+                AND NOT EXISTS (SELECT gig_links.user_id
+                FROM gig_links
+                WHERE gig_links.user_id = %s
+                AND gig_links.gig_id = gigs.invite_code
+                )
+            """,
+            (user['id'], )
         )
         public_gigs = cursor.fetchall()
 
         # Locate Gigs within 50 metres of the user
         user_location = (args['latitude'], args['longitude'])
         nearby_gigs = []
+
         for gig in public_gigs:
             gig_location = (gig['latitude'], gig['longitude'])
             if distance.distance(user_location, gig_location).meters < 50:
+                # Convert Decimal objects to Floats for JSON serialising
+                gig['latitude'] = float(gig['latitude'])
+                gig['longitude'] = float(gig['longitude'])
                 nearby_gigs.append(gig)
 
         log_msg = f"User {user['name']} is looking for nearby playlists"
