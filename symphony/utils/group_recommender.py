@@ -1,6 +1,3 @@
-import psycopg2
-from symphony.db.gigs import get_gigs
-from symphony import config
 from symphony.utils import content_based
 
 
@@ -49,16 +46,3 @@ def get_gig_recommendations(conn, gig_id):
     query_data = curs.fetchmany(tracks_to_fetch)
     tracks = [track_tuple[0] for track_tuple in query_data]
     return tracks
-
-
-def main():
-    conn = psycopg2.connect(config.DB_ARGS)
-    get_gigs(conn)
-    gig = input('Enter ID of gig to provide recommendations for: ')
-    get_gig_recommendations(conn, gig)
-    conn.commit()
-    conn.close()
-
-
-if __name__ == '__main__':
-    main()
