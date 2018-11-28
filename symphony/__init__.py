@@ -25,9 +25,8 @@ def create_app():
     utils.get_admin_token()
 
     # Register API Endpoints
-    api.add_resource(endpoints.callback.Callback,
-                     '/api/<string:page>/callback')
-    api.add_resource(endpoints.profile.Profile, '/api/profile')
+    api.add_resource(endpoints.callback.Callback, '/api/callback')
+    api.add_resource(endpoints.dashboard.Dashboard, '/api/dash')
     api.add_resource(endpoints.create.Create, '/api/create')
     api.add_resource(endpoints.join.Join, '/api/join')
     api.add_resource(endpoints.leave.Leave, '/api/leave')

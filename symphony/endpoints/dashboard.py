@@ -6,7 +6,7 @@ import spotipy
 from symphony import config, db
 
 
-# Parser for /api/profile
+# Parser for /api/dashboard
 parser = reqparse.RequestParser(bundle_errors=True)
 parser.add_argument('access_code', type=str, default=None)
 parser.add_argument('api_key', type=str, default=None)
@@ -23,7 +23,7 @@ def get_user_data(args):
         auth = spotipy.oauth2.SpotifyOAuth(
             config.CLIENT_ID,
             config.CLIENT_SECRET,
-            redirect_uri=f'{config.FRONTEND_URL}/profile/callback',
+            redirect_uri=f'{config.FRONTEND_URL}/callback',
             scope='user-library-read,user-top-read'
         )
 
@@ -89,7 +89,7 @@ def get_user_data(args):
     return user
 
 
-class Profile(Resource):
+class Dashboard(Resource):
     def post(self):
         args = parser.parse_args()
 
@@ -104,7 +104,7 @@ class Profile(Resource):
             abort(401, 'Invalid credentials')
             return
 
-        log_msg = f"User {user['name']} has viewed their profile"
+        log_msg = f"User {user['name']} has viewed their dashboard"
         current_app.logger.info(log_msg)
 
         return user
