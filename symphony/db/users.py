@@ -32,12 +32,12 @@ def get_api_key(cursor):
 def add_user(cursor, client, user):
     # Fill in missing user data
     if user['images']:
-        profile_picture = user['images'][0]['url']
+        user['profile_picture'] = user['images'][0]['url']
     else:
-        profile_picture = 'https://i.imgur.com/FteILMO.png'
+        user['profile_picture'] = 'https://i.imgur.com/FteILMO.png'
 
     # Generate a unique api key
-    api_key = get_api_key(cursor)
+    user['key'] = get_api_key(cursor)
 
     # Insert user into database
     cursor.execute(
@@ -48,20 +48,18 @@ def add_user(cursor, client, user):
             name,
             profile_picture
         )
-        VALUES(%s, %s, %s, %s)
+        VALUES(%(id)s, %(key)s, %(display_name)s, %(profile_picture)s)
         ON CONFLICT (id)
-            DO NOTHING
+            DO UPDATE
+            SET api_key = %(key)s,
+                profile_picture = %(profile_picture)s,
+                name = %(display_name)s
         """,
-        (
-            user['id'],
-            api_key,
-            user['display_name'],
-            profile_picture,
-        )
+        user
     )
     # Scrape listening habits of user
     insert_data(client, cursor, user['id'], 'long_term', 20)
     insert_data(client, cursor, user['id'], 'medium_term', 30)
     insert_data(client, cursor, user['id'], 'short_term', 40)
 
-    return api_key
+    return user['key']
