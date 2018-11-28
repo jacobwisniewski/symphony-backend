@@ -2,11 +2,10 @@
 Script to generate the Sqlite3 schema for the database and populate it with
 songs
 """
-import psycopg2
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-from symphony import config
-from symphony.utils import tracks
+import psycopg2
+
+from symphony import config, utils
 
 
 def create_db(conn):
@@ -104,7 +103,7 @@ def create_db(conn):
     conn.commit()
 
     # Populate the database with songs from the Global Top 50 playlist
-    client_credentials_manager = SpotifyClientCredentials(
+    client_credentials_manager = spotipy.oauth2.SpotifyClientCredentials(
         client_id=config.CLIENT_ID,
         client_secret=config.CLIENT_SECRET
     )
@@ -112,7 +111,7 @@ def create_db(conn):
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     response = sp.user_playlist_tracks('spotify', '37i9dQZEVXbMDoHDwVN2tF')
     tracks_list = [item['track'] for item in response['items']]
-    tracks.add_tracks(sp, cursor, tracks_list)
+    utils.tracks.add_tracks(sp, cursor, tracks_list)
 
     conn.commit()
 

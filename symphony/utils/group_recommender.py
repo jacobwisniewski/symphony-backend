@@ -1,7 +1,7 @@
-from symphony.utils import content_based
+from symphony import utils
 
 
-def get_gig_recommendations(conn, gig_id):
+def get_tracks(conn, gig_id):
     curs = conn.cursor()
 
     # Find number of users in the gig
@@ -15,9 +15,9 @@ def get_gig_recommendations(conn, gig_id):
     )
     users = curs.fetchall()
     for user in users:
-        data = content_based.get_user_data(conn, user)
-        model = content_based.train_model(data)
-        content_based.predict_tracks(conn, user, model)
+        data = utils.recommender.get_user_data(conn, user)
+        model = utils.recommender.train_model(data)
+        utils.recommender.predict_tracks(conn, user, model)
 
     conn.commit()
 

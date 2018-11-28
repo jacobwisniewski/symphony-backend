@@ -1,7 +1,7 @@
 from flask_restful import Resource
-from symphony.utils import random_string
-from symphony import config
 from spotipy import oauth2
+
+from symphony import config, utils
 
 
 class Callback(Resource):
@@ -11,7 +11,7 @@ class Callback(Resource):
         :returns: Callback URL with required scopes and randomised state
         :rtype: dict
         """
-        state = random_string(16)
+        state = utils.random_string(16)
         auth = oauth2.SpotifyOAuth(
             config.CLIENT_ID,
             config.CLIENT_SECRET,

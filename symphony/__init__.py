@@ -1,11 +1,9 @@
 from flask import Flask
-from flask_restful import Api
 from flask_cors import CORS
-from symphony.endpoints import callback, profile, create, join, leave, find
-from symphony import config
+from flask_restful import Api
 import psycopg2
 
-from symphony.utils import get_admin_token
+from symphony import config, endpoints, utils
 
 
 def create_app():
@@ -22,15 +20,16 @@ def create_app():
     init_db()
 
     # Create admin credentials if not already done
-    get_admin_token()
+    utils.get_admin_token()
 
     # Register API Endpoints
-    api.add_resource(callback.Callback, '/api/<string:page>/callback')
-    api.add_resource(profile.Profile, '/api/profile')
-    api.add_resource(create.Create, '/api/create')
-    api.add_resource(join.Join, '/api/join')
-    api.add_resource(leave.Leave, '/api/leave')
-    api.add_resource(find.Find, '/api/find')
+    api.add_resource(endpoints.callback.Callback,
+                     '/api/<string:page>/callback')
+    api.add_resource(endpoints.profile.Profile, '/api/profile')
+    api.add_resource(endpoints.create.Create, '/api/create')
+    api.add_resource(endpoints.join.Join, '/api/join')
+    api.add_resource(endpoints.leave.Leave, '/api/leave')
+    api.add_resource(endpoints.find.Find, '/api/find')
 
     return app
 

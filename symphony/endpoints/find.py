@@ -1,9 +1,9 @@
 from flask import current_app, abort
 from flask_restful import Resource, reqparse
-from symphony import config
-import psycopg2
-from psycopg2 import extras
 from geopy import distance
+import psycopg2
+
+from symphony import config
 
 # Parser for /api/create
 parser = reqparse.RequestParser(bundle_errors=True)

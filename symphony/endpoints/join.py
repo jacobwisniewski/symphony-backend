@@ -1,11 +1,9 @@
 from flask import current_app, abort
 from flask_restful import Resource, reqparse
-from symphony.utils import group_recommender, find_similar_gigs, user_in_gig
 import psycopg2
-from psycopg2 import extras
-from symphony import config
-from symphony import utils
 import spotipy
+
+from symphony import config, utils, db
 
 parser = reqparse.RequestParser(bundle_errors=True)
 parser.add_argument('api_key', type=str, required=True, default=None,
@@ -31,14 +29,14 @@ class Join(Resource):
             abort(401, 'Invalid credentials')
 
         # Get the corresponding gig
-        gig = find_similar_gigs(cursor, args['invite_code'])
+        gig = db.gigs.find_gig(cursor, args['invite_code'])
 
         # Check that the invite code was valid
         if not gig:
             abort(400, 'Invalid invite code')
 
         # Check if user is already in the gig
-        if user_in_gig(args['invite_code'], cursor, user):
+        if db.gigs.user_in_gig(args['invite_code'], cursor, user):
             abort(400, 'User is already in this gig')
 
         # Add user to gig
@@ -51,8 +49,7 @@ class Join(Resource):
         )
 
         # Get the recommendations for the gig
-        tracks = group_recommender.get_gig_recommendations(conn,
-                                                           args['invite_code'])
+        tracks = utils.group_recommender.get_tracks(conn, args['invite_code'])
 
         # Authenticate admin Symphony account
         admin_token = utils.get_admin_token()

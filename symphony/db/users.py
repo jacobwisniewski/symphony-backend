@@ -1,11 +1,13 @@
-from symphony.utils import tracks
 import secrets
+
+from symphony import utils
 
 
 def insert_data(client, cursor, user_id, time_frame, limit):
     response = client.current_user_top_tracks(time_range=time_frame,
                                               limit=limit)
-    tracks.add_tracks(client, cursor, response['items'], user_id, ratings=True)
+    utils.tracks.add_tracks(client, cursor, response['items'], user_id,
+                            ratings=True)
 
 
 def key_exists(cursor, key):

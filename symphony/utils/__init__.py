@@ -1,7 +1,12 @@
 import random
 import string
-import spotipy.util
+
+from spotipy import util
+
 from symphony import config
+from . import recommender, group_recommender, tracks
+
+__all__ = ['recommender', 'group_recommender', 'tracks']
 
 
 def random_string(length):
@@ -11,7 +16,7 @@ def random_string(length):
 
 
 def get_admin_token():
-    token = spotipy.util.prompt_for_user_token(
+    token = util.prompt_for_user_token(
         username=config.ADMIN_ID,
         scope='playlist-modify-public',
         client_id=config.CLIENT_ID,
@@ -19,41 +24,3 @@ def get_admin_token():
         redirect_uri=config.REDIRECT_URI
     )
     return token
-
-
-def find_similar_gigs(cursor, invite_code):
-    cursor.execute(
-        """
-        SELECT
-            gigs.name as gig_name,
-            gigs.invite_code,
-            gigs.playlist_url,
-            gigs.playlist_id,
-            users.name as owner_name
-        FROM gigs
-        INNER JOIN gig_links
-        ON gigs.invite_code = gig_links.gig_id
-        INNER JOIN users
-        ON gigs.owner_id = users.id
-        WHERE gigs.invite_code = %s
-        """,
-        (invite_code,)
-    )
-    similar_gigs = cursor.fetchone()
-    return similar_gigs
-
-
-def user_in_gig(invite_code, cursor, user):
-    cursor.execute(
-        """
-        SELECT EXISTS(
-            SELECT 1
-            FROM gig_links
-            WHERE gig_links.gig_id = %s
-                AND gig_links.user_id = %s
-        )
-        """,
-        (invite_code, user['id'])
-    )
-    response = cursor.fetchone()
-    return response['exists']

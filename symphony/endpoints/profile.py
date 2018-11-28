@@ -1,11 +1,9 @@
 from flask import current_app, abort
 from flask_restful import Resource, reqparse
-from spotipy import oauth2
-import spotipy
-from symphony import config
-from symphony.db import users
 import psycopg2
-from psycopg2 import extras
+import spotipy
+
+from symphony import config, db
 
 
 # Parser for /api/profile
@@ -22,7 +20,7 @@ def get_user_data(args):
     # Get the api_key for the user
     if args['access_code']:
         # Add/update user in database
-        auth = oauth2.SpotifyOAuth(
+        auth = spotipy.oauth2.SpotifyOAuth(
             config.CLIENT_ID,
             config.CLIENT_SECRET,
             redirect_uri=f'{config.FRONTEND_URL}/profile/callback',
@@ -38,7 +36,7 @@ def get_user_data(args):
 
         client = spotipy.client.Spotify(tokens['access_token'])
         current_user = client.current_user()
-        key = users.add_user(cursor, client, current_user)
+        key = db.users.add_user(cursor, client, current_user)
     else:
         key = args['api_key']
 

@@ -1,12 +1,9 @@
 from flask import current_app, abort
 from flask_restful import Resource, reqparse
-from symphony import utils
-from symphony.db import gigs
-from symphony.utils import group_recommender, find_similar_gigs
-from symphony import config
 import psycopg2
-from psycopg2 import extras
 import spotipy
+
+from symphony import utils, db, config
 
 # Parser for /api/create
 parser = reqparse.RequestParser(bundle_errors=True)
@@ -42,10 +39,10 @@ class Create(Resource):
 
         # Picks a unique invite code
         invite_code = utils.random_string(6)
-        similar_gigs = find_similar_gigs(cursor, invite_code)
+        similar_gigs = db.gigs.find_gig(cursor, invite_code)
         while similar_gigs:
             invite_code = utils.random_string(6)
-            similar_gigs = find_similar_gigs(cursor, invite_code)
+            similar_gigs = db.gigs.find_gig(cursor, invite_code)
 
         # Create the playlist to insert songs into
         admin_token = utils.get_admin_token()
@@ -64,11 +61,11 @@ class Create(Resource):
             'longitude': args['longitude'],
             'invite_code': invite_code
         }
-        gigs.create_gig(conn, gig_info)
-        gigs.join_gig(conn, user['id'], invite_code)
+        db.gigs.create_gig(conn, gig_info)
+        db.gigs.join_gig(conn, user['id'], invite_code)
 
         # Get the recommendations for the gig
-        tracks = group_recommender.get_gig_recommendations(conn, invite_code)
+        tracks = utils.group_recommender.get_tracks(conn, invite_code)
 
         # Add recommendations to the playlist
         admin.user_playlist_add_tracks(config.ADMIN_ID,

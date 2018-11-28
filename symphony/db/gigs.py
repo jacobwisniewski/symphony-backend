@@ -90,3 +90,41 @@ if __name__ == '__main__':
     from symphony import config
 
     connection = psycopg2.connect(config.DB_ARGS)
+
+
+def find_gig(cursor, invite_code):
+    cursor.execute(
+        """
+        SELECT
+            gigs.name as gig_name,
+            gigs.invite_code,
+            gigs.playlist_url,
+            gigs.playlist_id,
+            users.name as owner_name
+        FROM gigs
+        INNER JOIN gig_links
+        ON gigs.invite_code = gig_links.gig_id
+        INNER JOIN users
+        ON gigs.owner_id = users.id
+        WHERE gigs.invite_code = %s
+        """,
+        (invite_code,)
+    )
+    gigs = cursor.fetchone()
+    return gigs
+
+
+def user_in_gig(invite_code, cursor, user):
+    cursor.execute(
+        """
+        SELECT EXISTS(
+            SELECT 1
+            FROM gig_links
+            WHERE gig_links.gig_id = %s
+                AND gig_links.user_id = %s
+        )
+        """,
+        (invite_code, user['id'])
+    )
+    response = cursor.fetchone()
+    return response['exists']
