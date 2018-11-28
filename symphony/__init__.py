@@ -1,3 +1,5 @@
+import logging
+
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
@@ -50,3 +52,9 @@ def init_db():
         init_db.create_db(conn)
     conn.commit()
     conn.close()
+
+
+if __name__ == '__main__':
+    app = create_app()
+    app.logger.setLevel(logging.DEBUG)
+    app.run()
