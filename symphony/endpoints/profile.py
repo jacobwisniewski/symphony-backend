@@ -28,9 +28,13 @@ def get_user_data(args):
             redirect_uri=f'{config.FRONTEND_URL}/profile/callback',
             scope='user-library-read,user-top-read'
         )
-        tokens = auth.get_access_token(args['access_code'])
-        if not tokens:
-            return None
+
+        # Attempt to get access token with code provided
+        try:
+            tokens = auth.get_access_token(args['access_code'])
+        except spotipy.oauth2.SpotifyOauthError:
+            abort(401, 'Invalid credentials')
+            return
 
         client = spotipy.client.Spotify(tokens['access_token'])
         current_user = client.current_user()
@@ -96,11 +100,7 @@ class Profile(Resource):
             abort(400, 'Access code or API key required')
             return
 
-        try:
-            user = get_user_data(args)
-        except spotipy.oauth2.SpotifyOauthError:
-            abort(401, 'Invalid credentials')
-            return
+        user = get_user_data(args)
 
         if not user:
             abort(401, 'Invalid credentials')
