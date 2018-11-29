@@ -3,11 +3,15 @@ import secrets
 from symphony import utils
 
 
-def insert_data(client, cursor, user_id, time_frame, limit):
-    response = client.current_user_top_tracks(time_range=time_frame,
-                                              limit=limit)
-    utils.tracks.add_tracks(client, cursor, response['items'], user_id,
-                            ratings=True)
+def insert_track_ratings(client, cursor, user_id):
+    tracks_per_time = [('long_term', 20), ('medium_term', 30),
+                       ('short_term', 40)]
+
+    for time_frame, limit in tracks_per_time:
+        response = client.current_user_top_tracks(time_range=time_frame,
+                                                  limit=limit)
+        utils.tracks.add_tracks(client, cursor, response['items'], user_id,
+                                ratings=True)
 
 
 def key_exists(cursor, key):
@@ -29,15 +33,15 @@ def get_api_key(cursor):
     return api_key
 
 
-def add_user(cursor, client, user):
-    # Fill in missing user data
-    if user['images']:
-        user['profile_picture'] = user['images'][0]['url']
-    else:
-        user['profile_picture'] = 'https://i.imgur.com/FteILMO.png'
+def add_user(conn, client, user_data):
+    cursor = conn.cursor()
 
-    # Generate a unique api key
-    user['key'] = get_api_key(cursor)
+    # Fill in missing user data
+    api_key = get_api_key(cursor)
+    if user_data['images']:
+        profile_picture = user_data['images'][0]['url']
+    else:
+        profile_picture = 'https://i.imgur.com/FteILMO.png'
 
     # Insert user into database
     cursor.execute(
@@ -48,18 +52,30 @@ def add_user(cursor, client, user):
             name,
             profile_picture
         )
-        VALUES(%(id)s, %(key)s, %(display_name)s, %(profile_picture)s)
-        ON CONFLICT (id)
-            DO UPDATE
-            SET api_key = %(key)s,
-                profile_picture = %(profile_picture)s,
-                name = %(display_name)s
+        VALUES(%s, %s, %s, %s)
         """,
-        user
+        (user_data['id'], api_key, user_data['display_name'], profile_picture)
     )
-    # Scrape listening habits of user
-    insert_data(client, cursor, user['id'], 'long_term', 20)
-    insert_data(client, cursor, user['id'], 'medium_term', 30)
-    insert_data(client, cursor, user['id'], 'short_term', 40)
+    conn.commit()
 
-    return user['key']
+    # Populate user track ratings
+    insert_track_ratings(client, cursor, user_data['id'])
+    conn.commit()
+
+
+def update_user(conn, client, user_data):
+    cursor = conn.cursor()
+
+    # Delete old user ratings from database
+    cursor.execute(
+        """
+        DELETE FROM ratings
+        WHERE ratings.user_id = %s
+        """,
+        (user_data['id'],)
+    )
+    conn.commit()
+
+    # Populate user track ratings
+    insert_track_ratings(client, cursor, user_data['id'])
+    conn.commit()
