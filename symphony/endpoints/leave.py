@@ -39,7 +39,7 @@ class Leave(Resource):
         if not db.gigs.user_in_gig(args['invite_code'], cursor, user):
             abort(405, 'User is not in this gig')
 
-        # Add user to gig
+        # Delete user from gig
         cursor.execute(
             """
             DELETE FROM gig_links
@@ -47,6 +47,7 @@ class Leave(Resource):
             """,
             (user['id'], args['invite_code'])
         )
+        conn.commit()
 
         # Get the recommendations for the gig
         tracks = utils.group_recommender.get_tracks(conn, args['invite_code'])
