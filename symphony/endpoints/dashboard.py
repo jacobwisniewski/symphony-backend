@@ -53,7 +53,7 @@ def get_user(args):
     spotify_id = user_data['id']
 
     # Add or update user details
-    if db.users.user_exists(conn, by='id', value=spotify_id):
+    if db.users.find_user(conn, by='id', value=spotify_id):
         db.users.update_user(conn, client, user_data)
     else:
         db.users.add_user(conn, client, user_data)

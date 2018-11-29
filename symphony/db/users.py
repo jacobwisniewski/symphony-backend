@@ -74,7 +74,7 @@ def update_user(conn, client, user_data):
     conn.commit()
 
 
-def user_exists(conn, by, value):
+def find_user(conn, by, value):
     cursor = conn.cursor()
-    cursor.execute('SELECT 1 FROM users WHERE %s = %s', (by, value,))
+    cursor.execute('SELECT * FROM users WHERE %s = %s', (by, value,))
     return cursor.fetchone()

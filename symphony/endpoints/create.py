@@ -26,9 +26,7 @@ class Create(Resource):
         cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         # Uses provided credentials to get a user from the database
-        api_key = args['api_key']
-        cursor.execute('SELECT * FROM users WHERE api_key = %s', (api_key, ))
-        user = cursor.fetchone()
+        user = db.users.find_user(conn, by='api_key', value=args['api_key'])
 
         if not user:
             abort(401, 'Invalid credentials')
@@ -38,11 +36,7 @@ class Create(Resource):
                 abort(400, 'Public playlists require coordinates')
 
         # Picks a unique invite code
-        invite_code = utils.random_string(6)
-        similar_gigs = db.gigs.find_gig(cursor, invite_code)
-        while similar_gigs:
-            invite_code = utils.random_string(6)
-            similar_gigs = db.gigs.find_gig(cursor, invite_code)
+        invite_code = get_invite_code(cursor)
 
         # Create the playlist to insert songs into
         admin_token = utils.get_admin_token()
@@ -51,37 +45,52 @@ class Create(Resource):
                                               args['gig_name'])
 
         # Insert the new gig into the database
-        gig_info = {
-            'owner_id': user['id'],
-            'name': args['gig_name'],
-            'playlist_url': playlist['external_urls']['spotify'],
-            'playlist_id': playlist['id'],
-            'private': args['private'],
-            'latitude': args['latitude'],
-            'longitude': args['longitude'],
-            'invite_code': invite_code
-        }
+        gig_info = get_gig_info(args, invite_code, playlist, user)
         db.gigs.create_gig(conn, gig_info)
         db.gigs.join_gig(conn, user['id'], invite_code)
 
-        # Get the recommendations for the gig
-        tracks = utils.group_recommender.get_tracks(conn, invite_code)
-
         # Add recommendations to the playlist
+        tracks = utils.group_recommender.get_tracks(conn, invite_code)
         admin.user_playlist_add_tracks(config.ADMIN_ID,
                                        playlist['id'],
                                        tracks)
-        # Generate API response
-        response = {
-            'gig_name': args['gig_name'],
-            'invite_code': invite_code,
-            'playlist_url': playlist['external_urls']['spotify'],
-            'playlist_id': playlist['id'],
-        }
 
-        log_msg = f"Gig Name: {args['gig_name']}, " \
-                  f"Created By: {user['name']}, " \
-                  f"Playlist Link: {playlist['external_urls']['spotify']}"
-        current_app.logger.info(log_msg)
+        response = get_response(args, invite_code, playlist)
+        log_msg = [
+            f"Gig Name: {args['gig_name']}",
+            f"Created By: {user['name']}",
+            f"Playlist Link: {playlist['external_urls']['spotify']}"
+        ]
+        current_app.logger.info(', '.join(log_msg))
 
         return response
+
+
+def get_invite_code(cursor):
+    invite_code = utils.random_string(6)
+    # Ensure no other gig with the same invite_code exists
+    while db.gigs.find_gig(cursor, invite_code):
+        invite_code = utils.random_string(6)
+    return invite_code
+
+
+def get_gig_info(args, invite_code, playlist, user):
+    return {
+        'owner_id': user['id'],
+        'name': args['gig_name'],
+        'playlist_url': playlist['external_urls']['spotify'],
+        'playlist_id': playlist['id'],
+        'private': args['private'],
+        'latitude': args['latitude'],
+        'longitude': args['longitude'],
+        'invite_code': invite_code
+    }
+
+
+def get_response(args, invite_code, playlist):
+    return {
+        'gig_name': args['gig_name'],
+        'invite_code': invite_code,
+        'playlist_url': playlist['external_urls']['spotify'],
+        'playlist_id': playlist['id'],
+    }
