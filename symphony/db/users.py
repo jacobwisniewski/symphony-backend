@@ -1,5 +1,7 @@
 import secrets
 
+from psycopg2 import sql
+
 from symphony import utils
 
 
@@ -76,5 +78,8 @@ def update_user(conn, client, user_data):
 
 def find_user(conn, by, value):
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users WHERE %s = %s', (by, value,))
+    cursor.execute(
+        sql.SQL('SELECT * FROM users WHERE {} = %s')
+            .format(sql.Identifier(by)), (value,)
+    )
     return cursor.fetchone()
