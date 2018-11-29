@@ -82,8 +82,8 @@ def find_gig(cursor, invite_code):
         """,
         (invite_code,)
     )
-    gigs = cursor.fetchone()
-    return gigs
+    gig = cursor.fetchone()
+    return gig
 
 
 def user_in_gig(invite_code, cursor, user):

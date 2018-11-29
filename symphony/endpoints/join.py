@@ -60,16 +60,7 @@ class Join(Resource):
                                            gig['playlist_id'],
                                            tracks)
 
-        # Generate API response
-        response = {
-            'gig_name': gig['gig_name'],
-            'invite_code': gig['invite_code'],
-            'playlist_url': gig['playlist_url'],
-            'playlist_id': gig['playlist_id'],
-            'owner_name': gig['owner_name'],
-        }
-
         log_msg = f"User {user['name']} connected to {gig['gig_name']}"
         current_app.logger.info(log_msg)
 
-        return response
+        return gig
