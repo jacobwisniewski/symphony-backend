@@ -46,7 +46,7 @@ class Find(Resource):
             FROM gigs
             INNER JOIN users
             ON gigs.owner_id = users.id
-            INNER JOIN gig_links
+            LEFT JOIN gig_links
             ON gig_links.gig_id = gigs.invite_code
             WHERE 
                 gigs.private = FALSE
