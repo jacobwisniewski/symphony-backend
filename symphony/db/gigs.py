@@ -66,32 +66,6 @@ def leave_gig(conn, user_id, gig_id):
     conn.commit()
 
 
-def get_gigs(conn):
-    curs = conn.cursor()
-    curs.execute(
-        """
-        SELECT * FROM gigs
-        """
-    )
-    gigs = curs.fetchall()
-
-    if gigs:
-        print('{:>12} {:>12}'.format('id', 'name'))
-        for gig in gigs:
-            print('{:>12} {:>12}'.format(str(gig[0]), gig[1]))
-    else:
-        print('There are no gigs available')
-
-
-if __name__ == '__main__':
-    # If running the file directly automatically assign connection to local
-    # database
-    import psycopg2
-    from symphony import config
-
-    connection = psycopg2.connect(config.DB_ARGS)
-
-
 def find_gig(cursor, invite_code):
     cursor.execute(
         """
@@ -115,14 +89,10 @@ def find_gig(cursor, invite_code):
 def user_in_gig(invite_code, cursor, user):
     cursor.execute(
         """
-        SELECT EXISTS(
-            SELECT 1
-            FROM gig_links
-            WHERE gig_links.gig_id = %s
-                AND gig_links.user_id = %s
-        )
+        SELECT 1
+        FROM gig_links
+        WHERE gig_links.gig_id = %s AND gig_links.user_id = %s
         """,
         (invite_code, user['id'])
     )
-    response = cursor.fetchone()
-    return response['exists']
+    return cursor.fetchone()

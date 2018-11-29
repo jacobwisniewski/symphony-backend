@@ -53,7 +53,7 @@ def get_user(args):
     spotify_id = user_data['id']
 
     # Add or update user details
-    if user_exists(conn, spotify_id):
+    if db.users.user_exists(conn, by='id', value=spotify_id):
         db.users.update_user(conn, client, user_data)
     else:
         db.users.add_user(conn, client, user_data)
@@ -73,12 +73,6 @@ def get_access_token(args):
     # Attempt to get access token with code provided
     tokens = auth.get_access_token(args['access_code'])
     return tokens['access_token']
-
-
-def user_exists(conn, spotify_id):
-    cursor = conn.cursor()
-    cursor.execute('SELECT 1 FROM users WHERE id = %s', (spotify_id,))
-    return cursor.fetchone()
 
 
 def get_user_from_db(conn, by, value):

@@ -15,14 +15,7 @@ def insert_track_ratings(client, cursor, user_id):
 
 
 def key_exists(cursor, key):
-    cursor.execute(
-        """
-        SELECT *
-        FROM users
-        WHERE api_key = %s
-        """,
-        (key, )
-    )
+    cursor.execute('SELECT 1 FROM users WHERE api_key = %s', (key,))
     return cursor.fetchone()
 
 
@@ -79,3 +72,9 @@ def update_user(conn, client, user_data):
     # Populate user track ratings
     insert_track_ratings(client, cursor, user_data['id'])
     conn.commit()
+
+
+def user_exists(conn, by, value):
+    cursor = conn.cursor()
+    cursor.execute('SELECT 1 FROM users WHERE %s = %s', (by, value,))
+    return cursor.fetchone()
