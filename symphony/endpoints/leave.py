@@ -37,7 +37,7 @@ class Leave(Resource):
 
         # Check if user is already in the gig
         if not db.gigs.user_in_gig(args['invite_code'], cursor, user):
-            abort(405, 'User is not in this gig')
+            abort(400, 'User is not in this gig')
 
         # Delete user from gig
         cursor.execute(
