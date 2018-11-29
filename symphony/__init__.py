@@ -56,4 +56,4 @@ def init_db():
 if __name__ == '__main__':
     app = create_app()
     app.logger.setLevel(logging.DEBUG)
-    app.run()
+    app.run(debug=True)

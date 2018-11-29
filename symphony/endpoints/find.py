@@ -16,7 +16,7 @@ parser.add_argument('longitude', type=float, required=True,
 
 
 class Find(Resource):
-    def get(self):
+    def post(self):
         args = parser.parse_args()
 
         # Set up database connection
