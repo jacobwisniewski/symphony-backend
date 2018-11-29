@@ -102,8 +102,6 @@ def find_gig(cursor, invite_code):
             gigs.playlist_id,
             users.name as owner_name
         FROM gigs
-        INNER JOIN gig_links
-        ON gigs.invite_code = gig_links.gig_id
         INNER JOIN users
         ON gigs.owner_id = users.id
         WHERE gigs.invite_code = %s
