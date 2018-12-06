@@ -79,16 +79,18 @@ def get_user_from_db(conn, by, value):
     # Get user details
     cursor = conn.cursor()
     cursor.execute(
-        """
-        SELECT
-            users.api_key,
-            users.id as spotify_id,
-            users.name,
-            users.profile_picture
-        FROM users
-        WHERE %s = %s
-        """,
-        (by, value)
+        psycopg2.sql.SQL(
+            """
+            SELECT
+                users.api_key,
+                users.id as spotify_id,
+                users.name,
+                users.profile_picture
+            FROM users
+            WHERE {} = %s
+            """
+        ).format(psycopg2.sql.Identifier(by)),
+        (value,)
     )
     user = cursor.fetchone()
     if user:
@@ -122,7 +124,8 @@ def get_gig_info(cursor, spotify_id):
 
     # Convert Decimal objects to Floats for JSON serialising
     for gig in gig_info:
-        gig['latitude'] = float(gig['latitude'])
-        gig['longitude'] = float(gig['longitude'])
+        if gig['latitude'] is not None and gig['longitude'] is not None:
+            gig['latitude'] = float(gig['latitude'])
+            gig['longitude'] = float(gig['longitude'])
 
     return gig_info
