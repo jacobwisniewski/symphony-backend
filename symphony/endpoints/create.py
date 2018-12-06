@@ -23,7 +23,7 @@ class Create(Resource):
 
         # Set up database connection
         conn = psycopg2.connect(config.DB_ARGS)
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor = conn.cursor()
 
         # Uses provided credentials to get a user from the database
         user = db.users.find_user(conn, by='api_key', value=args['api_key'])
