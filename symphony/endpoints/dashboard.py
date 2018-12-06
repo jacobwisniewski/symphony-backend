@@ -124,8 +124,9 @@ def get_gig_info(cursor, spotify_id):
 
     # Convert Decimal objects to Floats for JSON serialising
     for gig in gig_info:
-        if gig['latitude'] is not None and gig['longitude'] is not None:
+        if gig['latitude'] is not None:
             gig['latitude'] = float(gig['latitude'])
+        if gig['longitude'] is not None:
             gig['longitude'] = float(gig['longitude'])
 
     return gig_info
