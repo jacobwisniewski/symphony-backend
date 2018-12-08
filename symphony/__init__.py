@@ -25,6 +25,8 @@ def create_app():
     # Create admin credentials if not already done
     utils.load_cache()
 
+    app.logger.setLevel(logging.INFO)
+
     # Register API Endpoints
     api.add_resource(endpoints.callback.Callback, '/api/callback')
     api.add_resource(endpoints.dashboard.Dashboard, '/api/dash')
