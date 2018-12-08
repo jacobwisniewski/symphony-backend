@@ -1,0 +1,1 @@
+web: gunicorn "symphony:create_app()"
