@@ -69,7 +69,7 @@ def get_access_token(args):
     auth = spotipy.oauth2.SpotifyOAuth(
         os.environ.get('CLIENT_ID'),
         os.environ.get('CLIENT_SECRET'),
-        redirect_uri=f'{config.FRONTEND_URL}/callback',
+        redirect_uri=f"{os.environ.get('FRONTEND_URL')}/callback",
         scope='user-library-read,user-top-read'
     )
     # Attempt to get access token with code provided
