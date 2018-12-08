@@ -21,5 +21,5 @@ class Callback(Resource):
             state=state,
             scope='user-library-read,user-top-read'
         )
-        authorize_url = auth.get_authorize_url()
+        authorize_url = auth.get_authorize_url(show_dialog=True)
         return {'url': authorize_url, 'state': state}
