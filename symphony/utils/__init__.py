@@ -24,3 +24,15 @@ def get_admin_token():
         redirect_uri=f"{os.environ.get('FRONTEND_URL')}/callback"
     )
     return token
+
+
+def load_cache():
+    admin_id = os.environ.get('ADMIN_ID')
+    cache_path = f'.cache-{admin_id}'
+
+    # Populate cache if it doesn't already exist
+    if not os.path.isfile(cache_path):
+        cache_contents = os.environ.get('ADMIN_CACHE')
+        with open(cache_path, 'w') as f:
+            f.write(cache_contents)
+        print('New cache file created')

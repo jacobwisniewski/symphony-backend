@@ -23,7 +23,7 @@ def create_app():
     init_db()
 
     # Create admin credentials if not already done
-    utils.get_admin_token()
+    utils.load_cache()
 
     # Register API Endpoints
     api.add_resource(endpoints.callback.Callback, '/api/callback')
