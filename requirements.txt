@@ -34,6 +34,6 @@ sklearn==0.0
 snowballstemmer==1.2.1
 Sphinx==1.8.1
 sphinxcontrib-websupport==1.1.0
-spotipy==2.4.4
+-e git+https://github.com/plamere/spotipy.git#egg=spotipy
 urllib3==1.23
 Werkzeug==0.14.1
