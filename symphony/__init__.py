@@ -1,3 +1,4 @@
+import os
 import logging
 
 from flask import Flask
@@ -5,7 +6,7 @@ from flask_cors import CORS
 from flask_restful import Api
 import psycopg2
 
-from symphony import config, endpoints, utils
+from symphony import endpoints, utils
 
 
 def create_app():
@@ -36,7 +37,7 @@ def create_app():
 
 
 def init_db():
-    conn = psycopg2.connect(config.DB_ARGS)
+    conn = psycopg2.connect(os.environ.get('DB_ARGS'))
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -56,4 +57,4 @@ def init_db():
 if __name__ == '__main__':
     app = create_app()
     app.logger.setLevel(logging.DEBUG)
-    app.run(debug=True)
+    app.run(debug=False)

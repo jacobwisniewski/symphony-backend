@@ -1,7 +1,9 @@
+import os
+
 from flask_restful import Resource
 from spotipy import oauth2
 
-from symphony import config, utils
+from symphony import utils
 
 
 class Callback(Resource):
@@ -13,9 +15,9 @@ class Callback(Resource):
         """
         state = utils.random_string(16)
         auth = oauth2.SpotifyOAuth(
-            config.CLIENT_ID,
-            config.CLIENT_SECRET,
-            redirect_uri=f'{config.FRONTEND_URL}/callback',
+            os.environ.get('CLIENT_ID'),
+            os.environ.get('CLIENT_SECRET'),
+            redirect_uri=f"{os.environ.get('FRONTEND_URL')}/callback",
             state=state,
             scope='user-library-read,user-top-read'
         )

@@ -1,9 +1,11 @@
+import os
+
 from flask import abort, current_app
 from flask_restful import Resource, reqparse
 import psycopg2
 import spotipy
 
-from symphony import config, db, utils
+from symphony import db, utils
 
 parser = reqparse.RequestParser(bundle_errors=True)
 parser.add_argument('api_key', type=str, required=True, default=None,
@@ -17,7 +19,7 @@ class Leave(Resource):
         args = parser.parse_args()
 
         # Set up database connection
-        conn = psycopg2.connect(config.DB_ARGS)
+        conn = psycopg2.connect(os.environ.get('DB_ARGS'))
         cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         # Uses provided credentials to get a user from the database
@@ -50,7 +52,7 @@ class Leave(Resource):
         admin = spotipy.Spotify(auth=admin_token)
 
         # Add recommendations to the playlist
-        admin.user_playlist_replace_tracks(config.ADMIN_ID,
+        admin.user_playlist_replace_tracks(os.environ.get('ADMIN_ID'),
                                            gig['playlist_id'],
                                            tracks)
 

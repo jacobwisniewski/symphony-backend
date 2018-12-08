@@ -1,9 +1,11 @@
+import os
+
 from flask import current_app, abort
 from flask_restful import Resource, reqparse
 import psycopg2
 import spotipy
 
-from symphony import utils, db, config
+from symphony import utils, db
 
 # Parser for /api/create
 parser = reqparse.RequestParser(bundle_errors=True)
@@ -22,7 +24,7 @@ class Create(Resource):
         args = parser.parse_args()
 
         # Set up database connection
-        conn = psycopg2.connect(config.DB_ARGS)
+        conn = psycopg2.connect(os.environ.get('DB_ARGS'))
         cursor = conn.cursor()
 
         # Uses provided credentials to get a user from the database
@@ -41,7 +43,7 @@ class Create(Resource):
         # Create the playlist to insert songs into
         admin_token = utils.get_admin_token()
         admin = spotipy.Spotify(auth=admin_token)
-        playlist = admin.user_playlist_create(config.ADMIN_ID,
+        playlist = admin.user_playlist_create(os.environ.get('ADMIN_ID'),
                                               args['gig_name'])
 
         # Insert the new gig into the database
@@ -51,7 +53,7 @@ class Create(Resource):
 
         # Add recommendations to the playlist
         tracks = utils.group_recommender.get_tracks(conn, invite_code)
-        admin.user_playlist_add_tracks(config.ADMIN_ID,
+        admin.user_playlist_add_tracks(os.environ.get('ADMIN_ID'),
                                        playlist['id'],
                                        tracks)
 

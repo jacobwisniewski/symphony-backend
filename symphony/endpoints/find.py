@@ -1,9 +1,9 @@
+import os
+
 from flask import current_app, abort
 from flask_restful import Resource, reqparse
 from geopy import distance
 import psycopg2
-
-from symphony import config
 
 # Parser for /api/create
 parser = reqparse.RequestParser(bundle_errors=True)
@@ -20,7 +20,7 @@ class Find(Resource):
         args = parser.parse_args()
 
         # Set up database connection
-        conn = psycopg2.connect(config.DB_ARGS)
+        conn = psycopg2.connect(os.environ.get('DB_ARGS'))
         cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         # Uses provided credentials to get a user from the database

@@ -1,9 +1,11 @@
+import os
+
 from flask import current_app, abort
 from flask_restful import Resource, reqparse
 import psycopg2
 import spotipy
 
-from symphony import config, db
+from symphony import db
 
 
 # Parser for /api/dashboard
@@ -39,7 +41,7 @@ class Dashboard(Resource):
 
 def get_user(args):
     # Set up database connection
-    conn = psycopg2.connect(config.DB_ARGS,
+    conn = psycopg2.connect(os.environ.get('DB_ARGS'),
                             cursor_factory=psycopg2.extras.RealDictCursor)
     if args['api_key']:
         user = get_user_from_db(conn, by='api_key', value=args['api_key'])
@@ -65,8 +67,8 @@ def get_user(args):
 
 def get_access_token(args):
     auth = spotipy.oauth2.SpotifyOAuth(
-        config.CLIENT_ID,
-        config.CLIENT_SECRET,
+        os.environ.get('CLIENT_ID'),
+        os.environ.get('CLIENT_SECRET'),
         redirect_uri=f'{config.FRONTEND_URL}/callback',
         scope='user-library-read,user-top-read'
     )
