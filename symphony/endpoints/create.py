@@ -37,6 +37,9 @@ class Create(Resource):
             if args['longitude'] is None or args['latitude'] is None:
                 abort(400, 'Public playlists require coordinates')
 
+        if not 0 < len(args['gig_name']) < 33:
+            abort(400, 'Gig name must be 1-32 characters long')
+
         # Picks a unique invite code
         invite_code = get_invite_code(cursor)
 
