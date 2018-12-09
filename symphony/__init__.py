@@ -34,6 +34,7 @@ def create_app():
     api.add_resource(endpoints.join.Join, '/api/join')
     api.add_resource(endpoints.leave.Leave, '/api/leave')
     api.add_resource(endpoints.find.Find, '/api/find')
+    api.add_resource(endpoints.gigs.Gigs, '/api/gigs')
 
     return app
 

@@ -1,2 +1,2 @@
-from . import callback, create, find, join, leave, dashboard
-__all__ = ['callback', 'create', 'find', 'join', 'leave', 'dashboard']
+from . import callback, create, find, gigs, join, leave, dashboard
+__all__ = ['callback', 'create', 'find', 'gigs', 'join', 'leave', 'dashboard']
