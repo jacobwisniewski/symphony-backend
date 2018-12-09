@@ -31,6 +31,10 @@ class Gigs(Resource):
 
 
 def get_gig_info(cursor, api_key):
+    # Get Spotify user ID using api key
+    cursor.execute('SELECT id FROM users WHERE api_key = %s', (api_key,))
+    user = cursor.fetchone()
+
     # Get gig details for gigs the user is in
     cursor.execute(
         """
@@ -48,9 +52,9 @@ def get_gig_info(cursor, api_key):
         ON gigs.invite_code = gig_links.gig_id
         INNER JOIN users
         ON gigs.owner_id = users.id
-        WHERE users.api_key = %s
+        WHERE gig_links.user_id = %s
         """,
-        (api_key,)
+        (user['id'],)
     )
     gig_info = cursor.fetchall()
 
