@@ -30,18 +30,6 @@ def create_db(conn):
         )
         """
     )
-    cursor.execute(
-        """
-        CREATE TABLE artists (
-            name      TEXT  NOT NULL,
-            id        TEXT  NOT NULL,
-            track_id  TEXT  NOT NULL,
-            PRIMARY KEY(id, track_id),
-            FOREIGN KEY(track_id) REFERENCES tracks(id)
-                ON DELETE CASCADE
-        )
-        """
-    )
 
     # Create schema for users and their song ratings
     cursor.execute(

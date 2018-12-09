@@ -29,30 +29,9 @@ def add_tracks(client, cursor, tracks, user_id=None, ratings=False):
         """,
         tracks
     )
-    add_artists(cursor, tracks)
     add_audio_features(client, cursor, tracks)
     if ratings:
         add_ratings(cursor, tracks, user_id)
-
-
-def get_artist_data(track):
-    artists = track['artists']
-    return [(artist['name'], artist['id'], track['id']) for artist in artists]
-
-
-def add_artists(cursor, tracks):
-    for track in tracks:
-        artist_data = get_artist_data(track)
-        execute_batch(
-            cursor,
-            """
-            INSERT INTO artists(name, id, track_id)
-            VALUES(%s, %s, %s)
-            ON CONFLICT (id, track_id)
-                DO NOTHING
-            """,
-            artist_data
-        )
 
 
 def get_ratings_data(user_id, tracks):
