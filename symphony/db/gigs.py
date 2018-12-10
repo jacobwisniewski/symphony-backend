@@ -1,3 +1,6 @@
+import os
+
+
 def create_gig(conn, gig_info):
     curs = conn.cursor()
     curs.execute(
@@ -28,14 +31,19 @@ def create_gig(conn, gig_info):
     conn.commit()
 
 
-def delete_gig(conn, gig_id):
+def delete_gig(conn, admin, gig):
+    # Delete the Gig's playlist from Spotify
+    admin.user_playlist_unfollow(os.environ.get('ADMIN_ID'),
+                                 gig['playlist_id'])
+
+    # Delete the Gig from the database
     curs = conn.cursor()
     curs.execute(
         """
         DELETE FROM gigs
-        WHERE id = %s
+        WHERE invite_code = %s
         """,
-        (gig_id, )
+        (gig['invite_code'], )
     )
     conn.commit()
 
@@ -86,13 +94,25 @@ def find_gig(cursor, invite_code):
     return gig
 
 
-def user_in_gig(invite_code, cursor, user):
+def user_in_gig(gig_id, cursor, user):
     cursor.execute(
         """
         SELECT 1
         FROM gig_links
         WHERE gig_links.gig_id = %s AND gig_links.user_id = %s
         """,
-        (invite_code, user['id'])
+        (gig_id, user['id'])
     )
     return cursor.fetchone()
+
+
+def is_empty(cursor, gig_id):
+    cursor.execute(
+        """
+        SELECT * FROM gig_links
+        WHERE gig_links.gig_id = %s
+        """,
+        (gig_id,)
+    )
+    response = cursor.fetchone()
+    return not response

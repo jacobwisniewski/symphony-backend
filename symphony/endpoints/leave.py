@@ -43,20 +43,26 @@ class Leave(Resource):
 
         # Delete user from gig
         db.gigs.leave_gig(conn, user['id'], args['invite_code'])
-
-        # Get the recommendations for the gig
-        tracks = utils.group_recommender.get_tracks(conn, args['invite_code'])
+        log_msg = f"User {user['name']} has left {gig['gig_name']}"
+        current_app.logger.info(log_msg)
 
         # Authenticate admin Symphony account
         admin_token = utils.get_admin_token()
         admin = spotipy.Spotify(auth=admin_token)
 
-        # Add recommendations to the playlist
-        admin.user_playlist_replace_tracks(os.environ.get('ADMIN_ID'),
-                                           gig['playlist_id'],
-                                           tracks)
+        if db.gigs.is_empty(cursor, args['invite_code']):
+            db.gigs.delete_gig(conn, admin, gig)
 
-        log_msg = f"User {user['name']} has left {gig['gig_name']}"
-        current_app.logger.info(log_msg)
+            log_msg = f"{gig['gig_name']} has been deleted"
+            current_app.logger.info(log_msg)
+        else:
+            # Get the recommendations for the gig
+            tracks = utils.group_recommender.get_tracks(conn,
+                                                        args['invite_code'])
+
+            # Add recommendations to the playlist
+            admin.user_playlist_replace_tracks(os.environ.get('ADMIN_ID'),
+                                               gig['playlist_id'],
+                                               tracks)
 
         return {'message': 'Gig successfully left'}
