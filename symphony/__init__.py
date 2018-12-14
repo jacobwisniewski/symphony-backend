@@ -28,13 +28,13 @@ def create_app():
     app.logger.setLevel(logging.INFO)
 
     # Register API Endpoints
-    api.add_resource(endpoints.callback.Callback, '/api/callback')
-    api.add_resource(endpoints.dashboard.Dashboard, '/api/dash')
-    api.add_resource(endpoints.create.Create, '/api/create')
-    api.add_resource(endpoints.join.Join, '/api/join')
-    api.add_resource(endpoints.leave.Leave, '/api/leave')
-    api.add_resource(endpoints.find.Find, '/api/find')
-    api.add_resource(endpoints.gigs.Gigs, '/api/gigs')
+    api.add_resource(endpoints.callback.Callback, '/callback')
+    api.add_resource(endpoints.dashboard.Dashboard, '/dash')
+    api.add_resource(endpoints.create.Create, '/create')
+    api.add_resource(endpoints.join.Join, '/join')
+    api.add_resource(endpoints.leave.Leave, '/leave')
+    api.add_resource(endpoints.find.Find, '/find')
+    api.add_resource(endpoints.gigs.Gigs, '/gigs')
 
     return app
 
