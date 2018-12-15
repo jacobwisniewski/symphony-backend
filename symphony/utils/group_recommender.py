@@ -38,6 +38,15 @@ def get_tracks(conn, gig_id):
         (gig_id, )
     )
 
+    curs.execute(
+        """
+        DELETE FROM ratings
+        WHERE imputed = 1
+        """
+    )
+
+    conn.commit()
+
     # Scale number of songs to fetch with number of users
     tracks_to_fetch = 40
     if num_users > 4:
