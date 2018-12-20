@@ -16,8 +16,9 @@ def get_tracks(conn, gig_id):
     users = curs.fetchall()
     for user in users:
         data = utils.recommender.get_user_data(conn, user)
-        model = utils.recommender.train_model(data)
-        utils.recommender.predict_tracks(conn, user, model)
+        if not data.empty:
+            model = utils.recommender.train_model(data)
+            utils.recommender.predict_tracks(conn, user, model)
 
     conn.commit()
 
